@@ -1,0 +1,171 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 247, 243, 235;
+  --background-start-rgb: 10, 10, 10;
+  --background-end-rgb: 5, 5, 5;
+}
+
+@layer base {
+  * {
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+  
+  html {
+    scroll-behavior: smooth;
+    color-scheme: dark;
+  }
+  
+  body {
+    background-color: #080808;
+    color: #F7F3EB;
+    font-family: var(--font-montserrat), sans-serif;
+    overflow-x: hidden;
+    selection-background-color: #D4AF37;
+    selection-color: #0A0A0A;
+  }
+  
+  ::selection {
+    background: #D4AF37;
+    color: #080808;
+  }
+
+  /* Custom Luxury Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #080808;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #2a261c;
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #D4AF37;
+  }
+}
+
+/* Luxury Glassmorphism & Gold Hairlines */
+.gold-hairline {
+  border: 1px solid rgba(212, 175, 55, 0.18);
+}
+
+.gold-hairline-hover:hover {
+  border-color: rgba(212, 175, 55, 0.45);
+}
+
+.luxury-glass {
+  background: rgba(18, 18, 18, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(212, 175, 55, 0.12);
+}
+
+.gold-gradient-text {
+  background: linear-gradient(135deg, #FDF7E7 0%, #D4AF37 50%, #997A35 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.gold-gradient-border {
+  border-image: linear-gradient(to right, rgba(212, 175, 55, 0.1), rgba(212, 175, 55, 0.5), rgba(212, 175, 55, 0.1)) 1;
+}
+
+/* Atomización / Vaporización de Perfume Densa de Izquierda a Derecha */
+@keyframes denseMistCloud {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.2) skewX(-10deg);
+    filter: blur(2px);
+  }
+  18% {
+    opacity: 0.98;
+    transform: translate(35px, -5px) scale(0.9, 0.7) skewX(-5deg);
+    filter: blur(2px);
+  }
+  45% {
+    opacity: 0.9;
+    transform: translate(85px, -12px) scale(1.8, 1.3) skewX(2deg);
+    filter: blur(3px);
+  }
+  75% {
+    opacity: 0.55;
+    transform: translate(145px, -18px) scale(2.6, 1.8) skewX(6deg);
+    filter: blur(6px);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(210px, -24px) scale(3.4, 2.2) skewX(10deg);
+    filter: blur(12px);
+  }
+}
+
+@keyframes liquidSplashDrop {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.4);
+  }
+  12% {
+    opacity: 1;
+    transform: translate(calc(var(--tx, 100px) * 0.25), calc(var(--ty, 0px) * 0.25)) scale(1.3);
+  }
+  65% {
+    opacity: 0.95;
+    transform: translate(calc(var(--tx, 100px) * 0.8), calc(var(--ty, 0px) * 0.8)) scale(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--tx, 140px), calc(var(--ty, 0px) + 18px)) scale(0.5);
+  }
+}
+
+@keyframes liquidJetSpray {
+  0% {
+    opacity: 0;
+    transform: scaleX(0.1) rotate(var(--angle, 0deg));
+    transform-origin: left center;
+  }
+  15% {
+    opacity: 0.95;
+    transform: scaleX(0.7) rotate(var(--angle, 0deg));
+    transform-origin: left center;
+  }
+  40% {
+    opacity: 0.85;
+    transform: scaleX(1.15) rotate(var(--angle, 0deg));
+    transform-origin: left center;
+  }
+  100% {
+    opacity: 0;
+    transform: scaleX(1.4) rotate(var(--angle, 0deg));
+    transform-origin: left center;
+  }
+}
+
+@keyframes expandingScentCone {
+  0% {
+    opacity: 0.9;
+    transform: scale(0.2) rotate(15deg);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(2.6) rotate(35deg) translate(60px, -10px);
+  }
+}
+
+.animate-dense-mist {
+  animation: denseMistCloud 1.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-liquid-jet {
+  animation: liquidJetSpray 1.1s cubic-bezier(0.1, 0.8, 0.2, 1) forwards;
+}
+
+.animate-scent-cone {
+  animation: expandingScentCone 1.3s cubic-bezier(0.12, 0.8, 0.3, 1) forwards;
+}
+
+
