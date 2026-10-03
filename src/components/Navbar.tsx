@@ -120,15 +120,6 @@ export default function Navbar({ onSearchClick }: NavbarProps) {
 
           {/* Controles de la Derecha */}
           <div className="flex items-center space-x-5">
-            <Link
-              href="/admin"
-              className="text-xs font-semibold uppercase tracking-wider text-gold-400/90 hover:text-gold-300 transition-colors flex items-center gap-1 bg-noir-900 border border-gold-500/30 px-2.5 py-1 rounded-lg"
-              title="Panel Administrativo"
-            >
-              <ShieldCheck className="w-3.5 h-3.5 text-gold-400" />
-              <span className="hidden sm:inline">Panel Admin</span>
-            </Link>
-
             <a
               href="#contacto"
               className="hidden lg:inline-block text-xs uppercase tracking-widest text-sand-300 hover:text-gold-300 transition-colors"
