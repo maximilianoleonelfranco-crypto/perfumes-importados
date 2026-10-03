@@ -15,7 +15,11 @@ export default function Navbar({ onSearchClick }: NavbarProps) {
 
   const handleGoBack = () => {
     if (typeof window !== "undefined") {
-      window.history.back();
+      if (window.history.length > 1) {
+        window.history.back();
+      } else {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
     }
   };
 

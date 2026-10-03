@@ -26,7 +26,7 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-noir-950 text-sand-100 flex flex-col selection:bg-gold-500 selection:text-noir-950">
+    <main className="w-full min-h-screen min-h-[100dvh] bg-noir-950 text-sand-100 flex flex-col selection:bg-gold-500 selection:text-noir-950 relative">
       {/* Barra de Navegación de Alta Gama con Botones Atrás, Inicio y Buscador */}
       <Navbar onSearchClick={handleSearchFocus} />
 

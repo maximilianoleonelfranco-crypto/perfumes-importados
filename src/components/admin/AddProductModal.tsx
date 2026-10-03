@@ -133,13 +133,13 @@ export default function AddProductModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center p-3 sm:p-6 overflow-y-auto overscroll-y-contain -webkit-overflow-scrolling-touch py-6 sm:py-10">
       <div
         className="fixed inset-0 bg-noir-950/85 backdrop-blur-md transition-opacity"
         onClick={onClose}
       />
 
-      <div className="relative w-full max-w-3xl bg-noir-900 border border-gold-500/40 rounded-2xl shadow-2xl overflow-hidden z-10 my-8 animate-fade-in text-sand-100">
+      <div className="relative w-full max-w-3xl bg-noir-900 border border-gold-500/40 rounded-2xl shadow-2xl overflow-hidden z-10 my-auto animate-fade-in text-sand-100">
         {/* Encabezado del Modal */}
         <div className="p-6 bg-noir-950 border-b border-white/10 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -164,7 +164,7 @@ export default function AddProductModal({
         </div>
 
         {/* Formulario */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-6 max-h-[80vh] overflow-y-auto">
+        <form onSubmit={handleSubmit} className="p-6 space-y-6 max-h-[75dvh] overflow-y-auto overscroll-y-contain -webkit-overflow-scrolling-touch">
           {savedSuccess && (
             <div className="p-4 bg-emerald-500/10 border border-emerald-500/50 rounded-xl text-emerald-400 text-xs font-semibold flex items-center gap-2 animate-fade-in">
               <Check className="w-5 h-5 text-emerald-400 shrink-0" />

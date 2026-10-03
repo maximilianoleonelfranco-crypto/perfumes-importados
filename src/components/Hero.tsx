@@ -5,7 +5,7 @@ import { ArrowRight, Truck, ShieldCheck, HeartHandshake, Sparkles, Award } from 
 
 export default function Hero() {
   return (
-    <section className="relative w-full min-h-[80vh] flex items-center justify-center overflow-hidden bg-noir-950 border-b border-gold-500/20">
+    <section className="relative w-full min-h-[70vh] sm:min-h-[80vh] min-h-[70dvh] sm:min-h-[80dvh] flex items-center justify-center overflow-hidden bg-noir-950 border-b border-gold-500/20">
       {/* Fondo Atmosférico con Luces y Resplandores Dorados (Sin imágenes gigantes rotas) */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
         <div className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-gold-500/10 rounded-full blur-[160px]" />

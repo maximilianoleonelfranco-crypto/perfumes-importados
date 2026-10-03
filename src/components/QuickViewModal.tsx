@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useCart } from "@/context/CartContext";
-import { X, ShieldCheck, Sparkles, Plus, Minus, Check, ShoppingBag, Truck, Droplets } from "lucide-react";
+import { X, ShieldCheck, Sparkles, Plus, Minus, Check, ShoppingBag, Truck, Droplets, ArrowLeft } from "lucide-react";
 import NoteBadge from "./NoteBadge";
 import PerfumeMistEffect from "./PerfumeMistEffect";
 
@@ -13,6 +13,20 @@ export default function QuickViewModal() {
   const [isDecantSelected, setIsDecantSelected] = useState(false);
   const [added, setAdded] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+
+  // Manejo de scroll lock en el body sin romper el scroll del modal en móvil
+  useEffect(() => {
+    if (!quickViewProduct) return;
+    const originalOverflow = document.body.style.overflow;
+    const originalOverscroll = document.body.style.overscrollBehavior;
+    document.body.style.overflow = "hidden";
+    document.body.style.overscrollBehavior = "none";
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      document.body.style.overscrollBehavior = originalOverscroll;
+    };
+  }, [quickViewProduct]);
 
   if (!quickViewProduct) return null;
 
@@ -26,23 +40,49 @@ export default function QuickViewModal() {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
-      {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-noir-950/85 backdrop-blur-md transition-opacity"
-        onClick={() => setQuickViewProduct(null)}
-      />
-
-      {/* Modal Dialog */}
-      <div className="relative w-full max-w-4xl bg-noir-900 border border-gold-500/30 rounded-2xl shadow-2xl overflow-hidden z-10 animate-fade-in my-8">
-        {/* Botón de Cierre */}
-        <button
+    <div 
+      className="fixed inset-0 z-50 overflow-y-auto overscroll-y-contain -webkit-overflow-scrolling-touch bg-noir-950/85 backdrop-blur-md"
+      role="dialog"
+      aria-modal="true"
+    >
+      {/* Wrapper de scroll que evita corte superior (data loss bug) en móviles con items-start */}
+      <div className="min-h-full min-h-[100dvh] w-full flex items-start sm:items-center justify-center p-2.5 sm:p-6 py-4 sm:py-8">
+        {/* Backdrop táctil para cerrar */}
+        <div
+          className="fixed inset-0 -z-10"
           onClick={() => setQuickViewProduct(null)}
-          className="absolute top-4 right-4 z-30 p-2 text-sand-400 hover:text-gold-300 transition-colors bg-noir-950/70 rounded-full"
-          aria-label="Cerrar vista rápida"
-        >
-          <X className="w-5 h-5" />
-        </button>
+          aria-hidden="true"
+        />
+
+        {/* Modal Dialog con delimitación de altura fluida */}
+        <div className="relative w-full max-w-4xl bg-noir-900 border border-gold-500/30 rounded-2xl shadow-2xl overflow-hidden z-10 animate-fade-in my-auto">
+          {/* Barra superior de navegación móvil con botón 'Atrás' */}
+          <div className="flex sm:hidden items-center justify-between px-4 py-3 bg-noir-950 border-b border-white/10 sticky top-0 z-40">
+            <button
+              onClick={() => setQuickViewProduct(null)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-noir-900 border border-gold-500/40 text-gold-300 active:scale-95 transition-transform text-xs font-semibold uppercase tracking-wider shadow-sm"
+              aria-label="Volver atrás"
+            >
+              <ArrowLeft className="w-4 h-4 text-gold-400" />
+              <span>Atrás</span>
+            </button>
+            <button
+              onClick={() => setQuickViewProduct(null)}
+              className="p-1.5 text-sand-400 hover:text-gold-300 rounded-lg active:scale-95 transition-transform"
+              aria-label="Cerrar producto"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Botón de Cierre en Desktop */}
+          <button
+            onClick={() => setQuickViewProduct(null)}
+            className="hidden sm:flex absolute top-4 right-4 z-30 p-2 text-sand-400 hover:text-gold-300 transition-colors bg-noir-950/70 border border-white/10 rounded-full hover:scale-105"
+            aria-label="Cerrar vista rápida"
+          >
+            <X className="w-5 h-5" />
+          </button>
 
         <div className="grid grid-cols-1 md:grid-cols-2">
           {/* Imagen de Alta Resolución con Efecto de Atomización */}
@@ -246,5 +286,6 @@ export default function QuickViewModal() {
         </div>
       </div>
     </div>
-  );
+  </div>
+);
 }

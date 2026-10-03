@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Cinzel, Montserrat, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { StoreProvider } from "@/context/StoreContext";
@@ -24,6 +24,12 @@ const playfair = Playfair_Display({
   weight: ["400", "500", "600", "700"],
   display: "swap",
 });
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+};
 
 export const metadata: Metadata = {
   title: "Perfumes Importtados | Lujos y Exclusividad",

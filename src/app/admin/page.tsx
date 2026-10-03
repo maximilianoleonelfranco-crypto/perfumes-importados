@@ -43,7 +43,7 @@ export default function AdminPage() {
   // 1. Pantalla de Autenticación por PIN si no ha iniciado sesión
   if (!isAdminLoggedIn) {
     return (
-      <div className="min-h-screen bg-noir-950 text-sand-100 flex items-center justify-center p-4 relative overflow-hidden">
+      <div className="min-h-screen min-h-[100dvh] bg-noir-950 text-sand-100 flex items-center justify-center p-4 relative">
         {/* Luces de Fondo */}
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-96 h-96 bg-gold-500/10 rounded-full blur-3xl pointer-events-none" />
 
@@ -117,7 +117,7 @@ export default function AdminPage() {
 
   // 2. Panel Administrativo una vez autenticado
   return (
-    <div className="min-h-screen bg-noir-950 text-sand-100 flex flex-col selection:bg-gold-500 selection:text-noir-950">
+    <div className="w-full min-h-screen min-h-[100dvh] bg-noir-950 text-sand-100 flex flex-col selection:bg-gold-500 selection:text-noir-950">
       {/* Cabecera del Admin */}
       <AdminHeader activeTab={activeTab} setActiveTab={setActiveTab} />
 

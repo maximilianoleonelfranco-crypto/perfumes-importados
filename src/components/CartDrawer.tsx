@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useCart } from "@/context/CartContext";
 import { useStore } from "@/context/StoreContext";
@@ -60,6 +60,19 @@ export default function CartDrawer() {
   // Total Final
   const grandTotal = Math.max(0, subtotal - discountAmount - mercadoPagoDiscount + currentShippingCost);
 
+  useEffect(() => {
+    if (isCartOpen) {
+      const origOverflow = document.body.style.overflow;
+      const origOverscroll = document.body.style.overscrollBehavior;
+      document.body.style.overflow = "hidden";
+      document.body.style.overscrollBehavior = "none";
+      return () => {
+        document.body.style.overflow = origOverflow;
+        document.body.style.overscrollBehavior = origOverscroll;
+      };
+    }
+  }, [isCartOpen]);
+
   if (!isCartOpen) return null;
 
   // Generar mensaje detallado para enviar directamente por WhatsApp
@@ -107,7 +120,7 @@ export default function CartDrawer() {
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden">
+    <div className="fixed inset-0 z-50 overflow-hidden overscroll-contain">
       {/* Fondo oscuro con desenfoque */}
       <div
         className="absolute inset-0 bg-noir-950/80 backdrop-blur-sm transition-opacity duration-300"
@@ -115,7 +128,7 @@ export default function CartDrawer() {
       />
 
       <div className="fixed inset-y-0 right-0 max-w-full flex pl-6 sm:pl-10">
-        <div className="w-screen max-w-md bg-noir-900 border-l border-gold-500/25 flex flex-col shadow-2xl relative animate-fade-in text-sand-100">
+        <div className="w-screen max-w-md bg-noir-900 border-l border-gold-500/25 flex flex-col shadow-2xl relative animate-fade-in text-sand-100 h-full max-h-[100dvh]">
           {/* Cabecera del Carrito */}
           <div className="p-5 border-b border-white/10 flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -233,7 +246,7 @@ export default function CartDrawer() {
 
           {/* Pie de Checkout Avanzado: Forma de Pago + Envío + WhatsApp */}
           {cart.length > 0 && (
-            <div className="p-5 border-t border-white/10 bg-noir-950 space-y-4 max-h-[60vh] overflow-y-auto">
+            <div className="p-5 border-t border-white/10 bg-noir-950 space-y-4 max-h-[60dvh] overflow-y-auto overscroll-y-contain -webkit-overflow-scrolling-touch">
               {/* 1. SELECCIÓN DE FORMA DE PAGO (REQUERIMIENTO MERCADO PAGO 10% OFF) */}
               <div className="space-y-2">
                 <label className="text-xs font-bold uppercase tracking-wider text-gold-400 flex items-center justify-between">
