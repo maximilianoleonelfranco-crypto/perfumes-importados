@@ -50,7 +50,7 @@ const REVIEWS: Review[] = [
     name: "Federico T.",
     city: "Salto",
     rating: 5,
-    comment: "Fragancias 100% originales con código de lote verificable en la caja. El descuento por Mercado Pago fue súper conveniente. Volveré a comprar.",
+    comment: "Fragancias 100% originales con código de lote verificable en la caja. La facilidad para coordinar el pago por Mercado Pago y el envío fue impecable. Volveré a comprar.",
     purchasedItem: "9 PM • Afnan",
     date: "Hace 1 semana",
     avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80",

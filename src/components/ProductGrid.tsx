@@ -112,7 +112,7 @@ export default function ProductGrid({
         <div className="inline-flex items-center gap-2 mb-2">
           <Sparkles className="w-3.5 h-3.5 text-gold-400" />
           <span className="text-[11px] font-medium uppercase tracking-ultra text-gold-400 font-montserrat">
-            Catálogo Oficial &bull; Perfumes Importtados
+            Catálogo Oficial &bull; Perfumes Importados
           </span>
           <Sparkles className="w-3.5 h-3.5 text-gold-400" />
         </div>

@@ -18,6 +18,9 @@ import {
   MessageCircle,
   MapPin,
   Tag,
+  User,
+  Phone,
+  AlertCircle,
 } from "lucide-react";
 
 export default function CartDrawer() {
@@ -38,12 +41,19 @@ export default function CartDrawer() {
   const [couponCodeInput, setCouponCodeInput] = useState("");
   const [couponFeedback, setCouponFeedback] = useState<{ success: boolean; message: string } | null>(null);
 
-  // Forma de Pago: "mercadopago" (genera 10% OFF automático) o "transferencia"
+  // Forma de Pago: "mercadopago" (+10% de recargo) o "transferencia" (sin recargo)
   const [paymentMethod, setPaymentMethod] = useState<"mercadopago" | "transferencia">("mercadopago");
 
   // Método de Entrega: "envio" o "retiro"
   const [deliveryType, setDeliveryType] = useState<"envio" | "retiro">("envio");
   const [shippingZone, setShippingZone] = useState<"mvd" | "canelones_mld" | "interior">("mvd");
+
+  // Datos del Cliente para Checkout
+  const [customerName, setCustomerName] = useState("");
+  const [customerPhone, setCustomerPhone] = useState("");
+  const [customerAddress, setCustomerAddress] = useState("");
+  const [customerNotes, setCustomerNotes] = useState("");
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   // Costo de envío según zona
   const shippingCosts = {
@@ -54,11 +64,11 @@ export default function CartDrawer() {
 
   const currentShippingCost = deliveryType === "retiro" ? 0 : shippingCosts[shippingZone];
 
-  // Descuento automático del 10% por Mercado Pago
-  const mercadoPagoDiscount = paymentMethod === "mercadopago" ? Math.round(subtotal * 0.1) : 0;
+  // Recargo automático del 10% por Mercado Pago (no descuento)
+  const mercadoPagoSurcharge = paymentMethod === "mercadopago" ? Math.round(subtotal * 0.1) : 0;
 
-  // Total Final
-  const grandTotal = Math.max(0, subtotal - discountAmount - mercadoPagoDiscount + currentShippingCost);
+  // Total Final con recargo si aplica
+  const grandTotal = Math.max(0, subtotal - discountAmount + mercadoPagoSurcharge + currentShippingCost);
 
   useEffect(() => {
     if (isCartOpen) {
@@ -75,47 +85,88 @@ export default function CartDrawer() {
 
   if (!isCartOpen) return null;
 
-  // Generar mensaje detallado para enviar directamente por WhatsApp
+  // Generar mensaje detallado para enviar directamente por WhatsApp al 097837529
   const handleSendToWhatsApp = () => {
-    let text = `*SOLICITUD DE PEDIDO - PERFUMES IMPORTTADOS*\n`;
-    text += `*Lujos y Exclusividad*\n\n`;
-    text += `📋 *Detalle de Fragancias:*\n`;
+    // Validación de campos del cliente
+    if (!customerName.trim()) {
+      setValidationError("Por favor ingresa tu nombre y apellido para el pedido.");
+      return;
+    }
+    if (!customerPhone.trim()) {
+      setValidationError("Por favor ingresa tu número de WhatsApp / teléfono de contacto.");
+      return;
+    }
+    if (deliveryType === "envio" && !customerAddress.trim()) {
+      setValidationError("Por favor ingresa tu dirección de entrega completa.");
+      return;
+    }
+
+    setValidationError(null);
+
+    const zoneLabel =
+      shippingZone === "mvd"
+        ? "Montevideo ($180 UYU)"
+        : shippingZone === "canelones_mld"
+        ? "Canelones / Maldonado ($220 UYU)"
+        : "Interior del País DAC / Mirtrans ($250 UYU)";
+
+    let text = `*🛍️ NUEVO PEDIDO - PERFUMES IMPORTADOS*\n`;
+    text += `*Lujos y Exclusividad • Montevideo, Uruguay*\n`;
+    text += `------------------------------------\n`;
+    text += `👤 *DATOS DEL CLIENTE:*\n`;
+    text += `• *Nombre:* ${customerName.trim()}\n`;
+    text += `• *Teléfono:* ${customerPhone.trim()}\n`;
+    text += `• *Modalidad de Entrega:* ${deliveryType === "retiro" ? "🏪 Retiro en Showroom / Pickup ($0 UYU)" : "🚗 Envío a Domicilio"}\n`;
+
+    if (deliveryType === "envio") {
+      text += `• *Dirección:* ${customerAddress.trim()}\n`;
+      text += `• *Zona de Envío:* ${zoneLabel}\n`;
+    } else {
+      text += `• *Punto de Retiro:* Showroom Central (Coordinar horario de entrega)\n`;
+    }
+
+    if (customerNotes.trim()) {
+      text += `• *Notas / Aclaraciones:* ${customerNotes.trim()}\n`;
+    }
+
+    text += `------------------------------------\n`;
+    text += `📋 *DETALLE DE LA COMPRA:*\n`;
 
     cart.forEach((item, idx) => {
       const typeLabel = item.isDecant ? " (✨ Muestra Decant 10ml)" : " (Frasco Completo)";
       text += `${idx + 1}. *${item.product.title}* x${item.quantity}${typeLabel} - $${(item.itemPrice * item.quantity).toLocaleString()} UYU\n`;
     });
 
-    text += `\n💰 *Subtotal:* $${subtotal.toLocaleString()} UYU\n`;
+    text += `------------------------------------\n`;
+    text += `💰 *RESUMEN DE PAGO:*\n`;
+    text += `• *Subtotal Fragancias:* $${subtotal.toLocaleString()} UYU\n`;
 
     if (discountAmount > 0 && appliedCoupon) {
-      text += `🎟️ *Cupón Aplicado (${appliedCoupon.code}):* -$${discountAmount.toLocaleString()} UYU\n`;
+      text += `• 🎟️ *Cupón Aplicado (${appliedCoupon.code}):* -$${discountAmount.toLocaleString()} UYU\n`;
     }
 
     if (paymentMethod === "mercadopago") {
-      text += `💳 *Descuento Mercado Pago (10% OFF):* -$${mercadoPagoDiscount.toLocaleString()} UYU\n`;
+      text += `• 💳 *Recargo Mercado Pago (+10%):* +$${mercadoPagoSurcharge.toLocaleString()} UYU\n`;
     }
 
-    if (deliveryType === "retiro") {
-      text += `🏪 *Entrega:* Retiro en Showroom / Pickup ($0 UYU)\n`;
+    if (deliveryType === "envio") {
+      text += `• 🚗 *Costo de Envío:* $${currentShippingCost.toLocaleString()} UYU (${zoneLabel})\n`;
     } else {
-      const zoneName =
-        shippingZone === "mvd"
-          ? "Montevideo ($180 UYU)"
-          : shippingZone === "canelones_mld"
-          ? "Canelones / Maldonado ($220 UYU)"
-          : "Interior del País DAC / Mirtrans ($250 UYU)";
-      text += `🚗 *Envío a Domicilio:* ${zoneName}\n`;
+      text += `• 🏪 *Retiro en Showroom:* $0 UYU (Gratis)\n`;
     }
 
     text += `\n🏷️ *TOTAL A PAGAR:* *$${grandTotal.toLocaleString()} UYU*\n\n`;
-    text += `*Forma de Pago Seleccionada:* ${
-      paymentMethod === "mercadopago" ? "Mercado Pago (10% OFF Generado)" : "Efectivo / Transferencia BROU"
+    text += `💳 *Forma de Pago:* ${
+      paymentMethod === "mercadopago"
+        ? "Mercado Pago (+10% de recargo incluido)"
+        : "Efectivo / Transferencia BROU (Sin recargo)"
     }\n`;
-    text += `Por favor coordinar la entrega y confirmación del pago. ¡Muchas gracias!`;
+    text += `------------------------------------\n`;
+    text += `¡Hola! Acabo de registrar este pedido desde la tienda online. Aguardo confirmación para coordinar el pago y la entrega. ¡Muchas gracias!`;
 
     const encodedText = encodeURIComponent(text);
-    const whatsappUrl = `https://wa.me/59899123456?text=${encodedText}`;
+    // Número oficial uruguayo configurado: 097 837 529 -> +598 97 837 529
+    const whatsappUrl = `https://wa.me/59897837529?text=${encodedText}`;
     window.open(whatsappUrl, "_blank");
   };
 
@@ -156,27 +207,26 @@ export default function CartDrawer() {
           <div className="flex-1 overflow-y-auto p-5 space-y-4">
             {cart.length === 0 ? (
               <div className="text-center py-20">
-                <ShoppingBag className="w-12 h-12 text-sand-500/40 mx-auto mb-4 stroke-[1]" />
-                <p className="font-cinzel text-base text-sand-300 mb-1">
-                  Su carrito está vacío
+                <ShoppingBag className="w-12 h-12 text-sand-600 mx-auto mb-4 stroke-1" />
+                <p className="font-cinzel text-sand-300 text-sm">
+                  Tu carrito está vacío
                 </p>
-                <p className="text-xs text-sand-500 mb-6">
-                  Descubra nuestras exclusivas fragancias árabes e importadas.
+                <p className="text-sand-500 text-xs mt-1">
+                  Explora nuestras colecciones y añade tu fragancia exclusiva.
                 </p>
                 <button
                   onClick={() => setIsCartOpen(false)}
-                  className="px-6 py-2.5 text-xs uppercase tracking-widest font-bold text-noir-950 bg-gold-500 rounded-full hover:bg-gold-400 transition-colors"
+                  className="mt-6 px-6 py-2.5 bg-noir-800 border border-gold-500/30 text-gold-400 text-xs font-semibold uppercase tracking-wider rounded-full hover:bg-gold-500 hover:text-noir-950 transition-colors"
                 >
-                  Ver Catálogo
+                  Continuar Explorando
                 </button>
               </div>
             ) : (
               cart.map((item) => (
                 <div
                   key={`${item.product.id}-${item.isDecant ? "decant" : "full"}`}
-                  className="flex gap-4 pb-4 border-b border-white/5 last:border-none group"
+                  className="flex gap-4 p-3 bg-noir-950 border border-white/5 rounded-xl hover:border-gold-500/20 transition-colors"
                 >
-                  {/* Miniatura */}
                   <div className="relative w-16 h-20 bg-noir-950 border border-white/10 shrink-0 overflow-hidden rounded-lg p-1">
                     <Image
                       src={item.product.imageUrl}
@@ -186,56 +236,55 @@ export default function CartDrawer() {
                     />
                   </div>
 
-                  {/* Detalles */}
                   <div className="flex-1 flex flex-col justify-between">
                     <div>
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <span className="text-[10px] uppercase tracking-wider text-gold-500 font-medium">
-                            {item.product.brand}
-                          </span>
-                          <h4 className="font-montserrat text-xs font-semibold text-sand-100 line-clamp-1">
-                            {item.product.title}
-                          </h4>
-                          <span className="text-[10px] text-cyan-300 font-medium block">
-                            {item.isDecant ? "✨ Muestra Decant (10ml)" : "Frasco Completo (100ml)"}
-                          </span>
-                        </div>
+                      <div className="flex justify-between items-start gap-2">
+                        <h4 className="font-montserrat text-xs font-semibold text-sand-100 line-clamp-1">
+                          {item.product.title}
+                        </h4>
                         <button
                           onClick={() => removeFromCart(item.product.id, item.isDecant)}
-                          className="text-sand-500 hover:text-red-400 p-1 transition-colors"
+                          className="text-sand-500 hover:text-red-400 transition-colors p-0.5"
+                          title="Eliminar producto"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       </div>
+
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-xs font-bold text-gold-400">
+                          {formatPrice(item.itemPrice)}
+                        </span>
+                        {item.isDecant && (
+                          <span className="px-1.5 py-0.5 bg-cyan-950/80 border border-cyan-400/50 text-cyan-300 text-[9px] font-bold uppercase rounded flex items-center gap-1">
+                            <Droplets className="w-2.5 h-2.5 text-cyan-400" />
+                            Decant 10ml
+                          </span>
+                        )}
+                      </div>
                     </div>
 
-                    {/* Stepper y Total */}
-                    <div className="flex items-center justify-between pt-1">
+                    <div className="flex justify-between items-center mt-2">
                       <div className="flex items-center border border-white/15 bg-noir-950 rounded-full overflow-hidden">
                         <button
-                          onClick={() =>
-                            updateQuantity(item.product.id, item.quantity - 1, item.isDecant)
-                          }
-                          className="px-2.5 py-0.5 text-xs text-sand-400 hover:text-gold-400"
+                          onClick={() => updateQuantity(item.product.id, item.quantity - 1, item.isDecant)}
+                          className="px-2 py-0.5 text-sand-400 hover:text-gold-400 text-xs"
                         >
                           -
                         </button>
-                        <span className="px-2 py-0.5 text-xs text-sand-200 font-semibold">
+                        <span className="px-2 text-xs font-semibold text-sand-200">
                           {item.quantity}
                         </span>
                         <button
-                          onClick={() =>
-                            updateQuantity(item.product.id, item.quantity + 1, item.isDecant)
-                          }
-                          className="px-2.5 py-0.5 text-xs text-sand-400 hover:text-gold-400"
+                          onClick={() => updateQuantity(item.product.id, item.quantity + 1, item.isDecant)}
+                          className="px-2 py-0.5 text-sand-400 hover:text-gold-400 text-xs"
                         >
                           +
                         </button>
                       </div>
 
-                      <span className="font-montserrat text-xs font-bold text-gold-400">
-                        {formatPrice(item.itemPrice * item.quantity)}
+                      <span className="text-xs font-bold text-sand-200">
+                        Total: {formatPrice(item.itemPrice * item.quantity)}
                       </span>
                     </div>
                   </div>
@@ -244,14 +293,83 @@ export default function CartDrawer() {
             )}
           </div>
 
-          {/* Pie de Checkout Avanzado: Forma de Pago + Envío + WhatsApp */}
+          {/* Pie de Checkout Avanzado: Datos de Cliente + Pago + Envío + WhatsApp */}
           {cart.length > 0 && (
             <div className="p-5 border-t border-white/10 bg-noir-950 space-y-4 max-h-[60dvh] overflow-y-auto overscroll-y-contain -webkit-overflow-scrolling-touch">
-              {/* 1. SELECCIÓN DE FORMA DE PAGO (REQUERIMIENTO MERCADO PAGO 10% OFF) */}
+              {/* ALERTA DE VALIDACIÓN SI FALTA INFORMACIÓN */}
+              {validationError && (
+                <div className="p-3 bg-red-950/80 border border-red-500/50 rounded-xl text-red-300 text-xs flex items-center gap-2 animate-fade-in">
+                  <AlertCircle className="w-4 h-4 shrink-0 text-red-400" />
+                  <span>{validationError}</span>
+                </div>
+              )}
+
+              {/* 1. DATOS DEL CLIENTE PARA EL PEDIDO */}
+              <div className="space-y-2.5 p-3.5 bg-noir-900 border border-gold-500/25 rounded-2xl">
+                <label className="text-xs font-bold uppercase tracking-wider text-gold-400 flex items-center gap-1.5">
+                  <User className="w-3.5 h-3.5 text-gold-400" />
+                  <span>Datos de Contacto & Entrega</span>
+                </label>
+
+                <div className="space-y-2">
+                  <div>
+                    <input
+                      type="text"
+                      placeholder="Nombre y Apellido *"
+                      value={customerName}
+                      onChange={(e) => {
+                        setCustomerName(e.target.value);
+                        setValidationError(null);
+                      }}
+                      className="w-full bg-noir-950 border border-white/15 focus:border-gold-500 rounded-xl px-3 py-2 text-xs text-sand-100 placeholder-sand-500 focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <input
+                      type="tel"
+                      placeholder="Teléfono o WhatsApp de contacto *"
+                      value={customerPhone}
+                      onChange={(e) => {
+                        setCustomerPhone(e.target.value);
+                        setValidationError(null);
+                      }}
+                      className="w-full bg-noir-950 border border-white/15 focus:border-gold-500 rounded-xl px-3 py-2 text-xs text-sand-100 placeholder-sand-500 focus:outline-none"
+                    />
+                  </div>
+
+                  {deliveryType === "envio" && (
+                    <div>
+                      <input
+                        type="text"
+                        placeholder="Dirección completa (Calle, Nº de puerta, esq./apto) *"
+                        value={customerAddress}
+                        onChange={(e) => {
+                          setCustomerAddress(e.target.value);
+                          setValidationError(null);
+                        }}
+                        className="w-full bg-noir-950 border border-white/15 focus:border-gold-500 rounded-xl px-3 py-2 text-xs text-sand-100 placeholder-sand-500 focus:outline-none"
+                      />
+                    </div>
+                  )}
+
+                  <div>
+                    <input
+                      type="text"
+                      placeholder="Notas adicionales (opcional)"
+                      value={customerNotes}
+                      onChange={(e) => setCustomerNotes(e.target.value)}
+                      className="w-full bg-noir-950 border border-white/10 focus:border-gold-500/40 rounded-xl px-3 py-1.5 text-xs text-sand-300 placeholder-sand-600 focus:outline-none"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* 2. SELECCIÓN DE FORMA DE PAGO (MERCADO PAGO CON 10% DE RECARGO) */}
               <div className="space-y-2">
                 <label className="text-xs font-bold uppercase tracking-wider text-gold-400 flex items-center justify-between">
                   <span>Forma de Pago</span>
-                  <span className="text-[10px] text-emerald-400">⚡ Mercado Pago: 10% OFF</span>
+                  <span className="text-[10px] text-amber-400 font-semibold">⚡ Mercado Pago: +10% Recargo</span>
                 </label>
                 <div className="grid grid-cols-2 gap-2">
                   <button
@@ -259,16 +377,16 @@ export default function CartDrawer() {
                     onClick={() => setPaymentMethod("mercadopago")}
                     className={`p-2.5 rounded-xl border text-left transition-all ${
                       paymentMethod === "mercadopago"
-                        ? "bg-sky-500/20 border-sky-400 text-sky-300 font-bold"
-                        : "bg-noir-900 border-white/10 text-sand-400"
+                        ? "bg-amber-500/20 border-amber-400 text-amber-300 font-bold shadow-sm"
+                        : "bg-noir-900 border-white/10 text-sand-400 hover:border-white/20"
                     }`}
                   >
                     <div className="flex items-center gap-1.5 text-xs font-bold">
-                      <CreditCard className="w-3.5 h-3.5 text-sky-400" />
+                      <CreditCard className="w-3.5 h-3.5 text-amber-400" />
                       <span>Mercado Pago</span>
                     </div>
-                    <span className="text-[10px] text-emerald-400 block font-semibold mt-0.5">
-                      10% OFF Automático
+                    <span className="text-[10px] text-amber-400 block font-semibold mt-0.5">
+                      +10% Recargo
                     </span>
                   </button>
 
@@ -277,22 +395,22 @@ export default function CartDrawer() {
                     onClick={() => setPaymentMethod("transferencia")}
                     className={`p-2.5 rounded-xl border text-left transition-all ${
                       paymentMethod === "transferencia"
-                        ? "bg-gold-500/20 border-gold-500 text-gold-300 font-bold"
-                        : "bg-noir-900 border-white/10 text-sand-400"
+                        ? "bg-emerald-500/20 border-emerald-400 text-emerald-300 font-bold shadow-sm"
+                        : "bg-noir-900 border-white/10 text-sand-400 hover:border-white/20"
                     }`}
                   >
                     <div className="flex items-center gap-1.5 text-xs font-bold">
-                      <Building2 className="w-3.5 h-3.5 text-gold-400" />
-                      <span>Efectivo / Brou</span>
+                      <Building2 className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>Efectivo / BROU</span>
                     </div>
-                    <span className="text-[10px] text-sand-400 block font-normal mt-0.5">
-                      Precio Regular
+                    <span className="text-[10px] text-emerald-400 block font-semibold mt-0.5">
+                      Sin recargo
                     </span>
                   </button>
                 </div>
               </div>
 
-              {/* 2. SELECCIÓN DE ENVÍO O RETIRO (REQUERIMIENTO COSTO SEGÚN ZONA) */}
+              {/* 3. SELECCIÓN DE ENVÍO O RETIRO */}
               <div className="space-y-2">
                 <label className="text-xs font-bold uppercase tracking-wider text-sand-300 block">
                   Método de Entrega / Envío
@@ -321,7 +439,7 @@ export default function CartDrawer() {
                     }`}
                   >
                     <MapPin className="w-3.5 h-3.5" />
-                    <span>Retiro (Gratis)</span>
+                    <span>Retiro en Showroom</span>
                   </button>
                 </div>
 
@@ -340,7 +458,7 @@ export default function CartDrawer() {
                 )}
               </div>
 
-              {/* 3. ENTRADA DE CUPÓN DE DESCUENTO */}
+              {/* 4. ENTRADA DE CUPÓN DE DESCUENTO */}
               <div className="space-y-1.5 pt-1">
                 <div className="flex gap-2">
                   <input
@@ -400,15 +518,15 @@ export default function CartDrawer() {
                 )}
 
                 {paymentMethod === "mercadopago" && (
-                  <div className="flex justify-between text-sky-400 font-bold">
-                    <span>Desc. Mercado Pago (10% OFF):</span>
-                    <span>-{formatPrice(mercadoPagoDiscount)}</span>
+                  <div className="flex justify-between text-amber-400 font-semibold">
+                    <span>Recargo Mercado Pago (+10%):</span>
+                    <span>+{formatPrice(mercadoPagoSurcharge)}</span>
                   </div>
                 )}
 
                 <div className="flex justify-between text-sand-400">
                   <span>Costo de Envío / Entrega:</span>
-                  <span>{currentShippingCost === 0 ? "¡Gratis!" : formatPrice(currentShippingCost)}</span>
+                  <span>{currentShippingCost === 0 ? "Gratis" : formatPrice(currentShippingCost)}</span>
                 </div>
 
                 <div className="flex justify-between items-baseline pt-2 border-t border-white/5">
@@ -421,18 +539,18 @@ export default function CartDrawer() {
                 </div>
               </div>
 
-              {/* BOTÓN ENVIAR PEDIDO POR WHATSAPP (REQUERIMIENTO CLAVE) */}
+              {/* BOTÓN ENVIAR PEDIDO POR WHATSAPP AL 097 837 529 */}
               <button
                 onClick={handleSendToWhatsApp}
                 className="w-full py-3.5 px-4 text-xs font-bold uppercase tracking-wider text-noir-950 bg-gradient-to-r from-emerald-400 via-emerald-500 to-emerald-400 hover:from-emerald-300 hover:to-emerald-500 rounded-2xl transition-all duration-300 flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 cursor-pointer"
               >
                 <MessageCircle className="w-5 h-5 fill-noir-950 text-emerald-500" />
-                <span>Enviar Pedido a WhatsApp (${grandTotal.toLocaleString()} UYU)</span>
+                <span>Enviar Pedido a WhatsApp ({formatPrice(grandTotal)})</span>
               </button>
 
               <div className="flex items-center justify-center gap-2 text-[10px] text-sand-400 uppercase tracking-widest pt-1">
                 <ShieldCheck className="w-3.5 h-3.5 text-gold-500" />
-                <span>100% Originales &bull; Envíos Rápidos a todo Uruguay</span>
+                <span>100% Originales &bull; Envíos a todo Uruguay</span>
               </div>
             </div>
           )}

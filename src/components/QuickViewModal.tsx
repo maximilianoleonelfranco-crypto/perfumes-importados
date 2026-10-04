@@ -269,7 +269,7 @@ export default function QuickViewModal() {
                   </button>
                 </div>
 
-              {/* Sellos de garantía */}
+              {/* Sellos de autenticidad */}
               <div className="flex items-center justify-center gap-4 text-[11px] text-sand-400">
                 <span className="flex items-center gap-1 text-gold-400">
                   <ShieldCheck className="w-3.5 h-3.5" />

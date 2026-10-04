@@ -58,7 +58,7 @@ export default function Home() {
       {/* Reproductor de Música de Ambiente de Lujo */}
       <AudioPlayer />
 
-      {/* Cajón de Carrito de Compras en $ UYU con Mercado Pago 10% OFF, Zonas de Envío y WhatsApp */}
+      {/* Cajón de Carrito de Compras en $ UYU con Mercado Pago +10% Recargo, Zonas de Envío y WhatsApp */}
       <CartDrawer />
 
       {/* Modal de Vista Rápida con Selector de Frasco vs Decant (10ml) */}

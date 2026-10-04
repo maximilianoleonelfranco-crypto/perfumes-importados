@@ -55,7 +55,7 @@ export default function AdminPage() {
               className="inline-flex items-center gap-2 text-xs text-sand-400 hover:text-gold-300 transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
-              <span>Volver a Perfumes Importtados</span>
+              <span>Volver a Perfumes Importados</span>
             </Link>
           </div>
 
@@ -67,7 +67,7 @@ export default function AdminPage() {
             PANEL ADMINISTRATIVO
           </h2>
           <p className="text-xs text-gold-400/90 mt-1 mb-6">
-            Perfumes Importtados • Acceso Restringido
+            Perfumes Importados • Acceso Restringido
           </p>
 
           <form onSubmit={handleLogin} className="space-y-4">

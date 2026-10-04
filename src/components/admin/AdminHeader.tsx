@@ -54,7 +54,7 @@ export default function AdminHeader({ activeTab, setActiveTab }: AdminHeaderProp
                 </span>
               </div>
               <p className="text-xs text-gold-400/90">
-                Perfumes Importtados • Control Total de Tienda
+                Perfumes Importados • Control Total de Tienda
               </p>
             </div>
           </div>

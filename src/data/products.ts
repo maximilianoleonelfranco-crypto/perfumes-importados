@@ -15,8 +15,8 @@ export interface Product {
 }
 
 export const contactInfo = {
-  phone: "+598 99 000 000",
-  email: "consultas@perfumesimporttados.com.uy",
+  phone: "097 837 529",
+  email: "consultas@perfumesimportados.com.uy",
   address: "Montevideo, Uruguay • Envíos a todo el país de forma rápida y efectiva"
 };
 
@@ -185,7 +185,7 @@ export const products: Product[] = [
     category: "perfumes-de-diseñador",
     pillarCategory: "Gourmand & Especiados",
     volume: "100ml",
-    description: "Fuerza roja incombustible. Una combinación irresistible de sandía dulce, manzana y notas ambaradas que garantizan cumplidos constantes."
+    description: "Fuerza roja incombustible. Una combinación irresistible de sandía dulce, manzana y notas ambaradas que generan cumplidos constantes."
   },
   {
     id: "phantom-paco-rabanne",

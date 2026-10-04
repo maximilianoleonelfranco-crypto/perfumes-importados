@@ -107,17 +107,17 @@ export default function Navbar({ onSearchClick }: NavbarProps) {
             </a>
           </div>
 
-          {/* Logotipo Central Sofisticado: Perfumes Importtados - Lujos y Exclusividad */}
+          {/* Logotipo Central Sofisticado: Perfumes Importados - Lujos y Exclusividad */}
           <div className="text-center group cursor-pointer">
             <a href="#" className="inline-block">
               <span className="block text-[9px] tracking-[0.35em] text-gold-500 uppercase font-montserrat font-medium mb-0.5">
                 Montevideo &bull; Uruguay
               </span>
               <span className="font-cinzel text-xl md:text-2xl lg:text-3xl font-bold tracking-widest text-sand-50 group-hover:text-gold-300 transition-colors">
-                PERFUMES IMPORTTADOS
+                PERFUMES IMPORTADOS
               </span>
-              <span className="block text-[10px] tracking-widest text-sand-400 uppercase font-light mt-0.5 font-montserrat italic">
-                Lujos y Exclusividad
+              <span className="block text-[11px] tracking-wider text-gold-400 font-playfair italic mt-0.5">
+                Fragancias originales de lujo
               </span>
             </a>
           </div>

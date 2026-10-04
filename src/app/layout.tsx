@@ -32,10 +32,10 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Perfumes Importtados | Lujos y Exclusividad",
+  title: "Perfumes Importados | Fragancias originales de lujo",
   description: "Importadores directos en Uruguay de alta perfumería árabe e importada de diseñador. 100% Originales con envíos rápidos y efectivos a todo el país.",
   keywords: [
-    "Perfumes Importtados",
+    "Perfumes Importados",
     "Lujos y Exclusividad",
     "perfumes árabes uruguay",
     "perfumes importados uruguay",
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
     "montale uruguay",
     "xerjoff uruguay"
   ],
-  authors: [{ name: "Perfumes Importtados" }],
+  authors: [{ name: "Perfumes Importados" }],
   icons: {
     icon: "/favicon.ico",
   },

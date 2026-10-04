@@ -63,15 +63,15 @@ export default function Footer() {
               Montevideo &bull; Uruguay
             </span>
             <h3 className="font-cinzel text-2xl font-bold tracking-widest text-sand-100 mb-2">
-              PERFUMES IMPORTTADOS
+              PERFUMES IMPORTADOS
             </h3>
             <p className="text-sm italic text-gold-400 font-playfair mb-4">
-              &ldquo;Lujos y Exclusividad&rdquo;
+              &ldquo;Fragancias originales de lujo&rdquo;
             </p>
             <p className="text-xs leading-relaxed text-sand-400 font-light">
               Importadores directos en Uruguay de la más selecta perfumería árabe y de diseñador. 
               Catálogo en continua rotación con los lanzamientos más codiciados del mercado internacional, 
-              garantizando siempre productos 100% auténticos y atención personalizada.
+              ofreciendo siempre productos 100% auténticos y atención personalizada.
             </p>
           </div>
 
@@ -125,7 +125,7 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Columna 3: Colecciones & Garantías */}
+          {/* Columna 3: Colecciones & Servicios */}
           <div className="flex flex-col">
             <h4 className="font-cinzel text-sm font-semibold text-sand-100 tracking-widest uppercase mb-6 pb-2 border-b border-white/10">
               Colecciones & Servicios
@@ -153,7 +153,7 @@ export default function Footer() {
               </li>
               <li>
                 <a href="#catalogo" className="hover:text-gold-300 transition-colors inline-block py-0.5">
-                  &bull; Garantía 100% Autenticidad en Cada Frasco
+                  &bull; 100% Autenticidad en Cada Frasco
                 </a>
               </li>
             </ul>
@@ -165,7 +165,7 @@ export default function Footer() {
       <div className="border-t border-white/5 py-6 px-6 md:px-8 bg-noir-950">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-[11px] text-sand-500">
           <div>
-            &copy; {new Date().getFullYear()} PERFUMES IMPORTTADOS &bull; Lujos y Exclusividad. Todos los derechos reservados.
+            &copy; {new Date().getFullYear()} PERFUMES IMPORTADOS &bull; Lujos y Exclusividad. Todos los derechos reservados.
           </div>
 
           <div className="flex items-center space-x-6 text-[11px] uppercase tracking-wider text-sand-400">
