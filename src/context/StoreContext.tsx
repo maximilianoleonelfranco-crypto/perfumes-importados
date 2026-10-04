@@ -53,6 +53,20 @@ export interface AnalyticsData {
   searchQueries: SearchLog[];
 }
 
+export interface MontevideoNeighborhood {
+  id: string;
+  name: string;
+  zone: string;
+  cost: number;
+}
+
+export interface ShippingConfig {
+  defaultMontevideoCost: number;
+  canelonesMaldonadoCost: number;
+  interiorAgencyCost: number;
+  neighborhoods: MontevideoNeighborhood[];
+}
+
 interface StoreContextType {
   // Productos & Stock
   products: Product[];
@@ -89,6 +103,16 @@ interface StoreContextType {
   analytics: AnalyticsData;
   trackProductView: (productId: string) => void;
   trackSearchQuery: (query: string) => void;
+
+  // Configuración de Envíos & Barrios de Montevideo
+  shippingConfig: ShippingConfig;
+  updateNeighborhoodCost: (id: string, newCost: number) => void;
+  updateZoneCost: (zone: string, newCost: number) => void;
+  addNeighborhood: (neighborhood: Omit<MontevideoNeighborhood, "id">) => void;
+  deleteNeighborhood: (id: string) => void;
+  updateDefaultMontevideoCost: (cost: number) => void;
+  updateCanelonesCost: (cost: number) => void;
+  detectMontevideoNeighborhood: (address: string) => MontevideoNeighborhood | null;
 
   // Admin Auth
   isAdminLoggedIn: boolean;
@@ -173,6 +197,68 @@ const INITIAL_PROMOTIONS: Promotion[] = [
   },
 ];
 
+export const INITIAL_SHIPPING_CONFIG: ShippingConfig = {
+  defaultMontevideoCost: 180,
+  canelonesMaldonadoCost: 220,
+  interiorAgencyCost: 0,
+  neighborhoods: [
+    // Zona Centro & Alrededores ($150)
+    { id: "centro", name: "Centro", zone: "Centro / Cordón", cost: 150 },
+    { id: "ciudad-vieja", name: "Ciudad Vieja", zone: "Centro / Cordón", cost: 150 },
+    { id: "cordon", name: "Cordón", zone: "Centro / Cordón", cost: 150 },
+    { id: "barrio-sur", name: "Barrio Sur", zone: "Centro / Cordón", cost: 150 },
+    { id: "palermo", name: "Palermo", zone: "Centro / Cordón", cost: 150 },
+    { id: "parque-rodo", name: "Parque Rodó", zone: "Centro / Cordón", cost: 150 },
+    { id: "aguada", name: "Aguada", zone: "Centro / Cordón", cost: 150 },
+    { id: "tres-cruces", name: "Tres Cruces", zone: "Centro / Cordón", cost: 150 },
+    { id: "parque-batlle", name: "Parque Batlle", zone: "Centro / Cordón", cost: 150 },
+    { id: "la-blanqueada", name: "La Blanqueada", zone: "Centro / Cordón", cost: 150 },
+
+    // Zona Costa / Sur ($180)
+    { id: "pocitos", name: "Pocitos", zone: "Costa / Sur", cost: 180 },
+    { id: "pocitos-nuevo", name: "Pocitos Nuevo", zone: "Costa / Sur", cost: 180 },
+    { id: "punta-carretas", name: "Punta Carretas", zone: "Costa / Sur", cost: 180 },
+    { id: "buceo", name: "Buceo", zone: "Costa / Sur", cost: 180 },
+    { id: "puerto-del-buceo", name: "Puerto del Buceo", zone: "Costa / Sur", cost: 180 },
+    { id: "malvin", name: "Malvín", zone: "Costa / Sur", cost: 180 },
+    { id: "malvin-norte", name: "Malvín Norte", zone: "Costa / Sur", cost: 180 },
+    { id: "punta-gorda", name: "Punta Gorda", zone: "Costa / Sur", cost: 180 },
+    { id: "carrasco", name: "Carrasco", zone: "Costa / Sur", cost: 180 },
+    { id: "carrasco-norte", name: "Carrasco Norte", zone: "Costa / Sur", cost: 180 },
+
+    // Zona Norte / Oeste Cercano ($200)
+    { id: "prado", name: "Prado", zone: "Norte / Oeste", cost: 200 },
+    { id: "atahualpa", name: "Atahualpa", zone: "Norte / Oeste", cost: 200 },
+    { id: "reducto", name: "Reducto", zone: "Norte / Oeste", cost: 200 },
+    { id: "bella-vista", name: "Bella Vista", zone: "Norte / Oeste", cost: 200 },
+    { id: "jacinto-vera", name: "Jacinto Vera", zone: "Norte / Oeste", cost: 200 },
+    { id: "brazo-oriental", name: "Brazo Oriental", zone: "Norte / Oeste", cost: 200 },
+    { id: "union", name: "Unión", zone: "Norte / Oeste", cost: 200 },
+    { id: "maronas", name: "Maroñas", zone: "Norte / Oeste", cost: 200 },
+    { id: "flor-de-maronas", name: "Flor de Maroñas", zone: "Norte / Oeste", cost: 200 },
+    { id: "mercado-modelo", name: "Mercado Modelo", zone: "Norte / Oeste", cost: 200 },
+    { id: "villa-espanola", name: "Villa Española", zone: "Norte / Oeste", cost: 200 },
+
+    // Zona Periferia & Oeste / Norte Lejano ($250)
+    { id: "cerro", name: "Cerro", zone: "Periferia / Oeste", cost: 250 },
+    { id: "la-teja", name: "La Teja", zone: "Periferia / Oeste", cost: 250 },
+    { id: "paso-molino", name: "Paso Molino", zone: "Periferia / Oeste", cost: 250 },
+    { id: "belvedere", name: "Belvedere", zone: "Periferia / Oeste", cost: 250 },
+    { id: "paso-de-la-arena", name: "Paso de la Arena", zone: "Periferia / Oeste", cost: 250 },
+    { id: "nuevo-paris", name: "Nuevo París", zone: "Periferia / Oeste", cost: 250 },
+    { id: "sayago", name: "Sayago", zone: "Periferia / Oeste", cost: 250 },
+    { id: "penarol", name: "Peñarol", zone: "Periferia / Oeste", cost: 250 },
+    { id: "colon", name: "Colón", zone: "Periferia / Oeste", cost: 250 },
+    { id: "lezica", name: "Lezica", zone: "Periferia / Oeste", cost: 250 },
+    { id: "melilla", name: "Melilla", zone: "Periferia / Oeste", cost: 250 },
+    { id: "manga", name: "Manga", zone: "Periferia / Oeste", cost: 250 },
+    { id: "piedras-blancas", name: "Piedras Blancas", zone: "Periferia / Oeste", cost: 250 },
+    { id: "casavalle", name: "Casavalle", zone: "Periferia / Oeste", cost: 250 },
+    { id: "punta-de-rieles", name: "Punta de Rieles", zone: "Periferia / Oeste", cost: 250 },
+    { id: "villa-garcia", name: "Villa García", zone: "Periferia / Oeste", cost: 250 },
+  ],
+};
+
 export function StoreProvider({ children }: { children: React.ReactNode }) {
   // 1. Productos con stock predeterminado realista y opción de decant
   const [products, setProducts] = useState<Product[]>(() => {
@@ -227,10 +313,14 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
+  const [shippingConfig, setShippingConfig] = useState<ShippingConfig>(INITIAL_SHIPPING_CONFIG);
 
   // Cargar estado guardado de LocalStorage
   useEffect(() => {
     try {
+      const savedShipping = localStorage.getItem("perfumes_importados_shipping_v1");
+      if (savedShipping) setShippingConfig(JSON.parse(savedShipping));
+
       const savedProds = localStorage.getItem("perfumes_importtados_products_v3");
       if (savedProds) setProducts(JSON.parse(savedProds));
 
@@ -292,6 +382,12 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       localStorage.setItem("perfumes_importtados_analytics_v3", JSON.stringify(analytics));
     } catch {}
   }, [analytics]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("perfumes_importados_shipping_v1", JSON.stringify(shippingConfig));
+    } catch {}
+  }, [shippingConfig]);
 
   // Funciones de Producto & Stock
   const addProduct = (newProd: Omit<Product, "id" | "viewsCount">) => {
@@ -485,6 +581,95 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     } catch {}
   };
 
+  // Configuración de Envíos & Barrios de Montevideo
+  const updateNeighborhoodCost = (id: string, newCost: number) => {
+    setShippingConfig((prev) => ({
+      ...prev,
+      neighborhoods: prev.neighborhoods.map((n) =>
+        n.id === id ? { ...n, cost: Math.max(0, newCost) } : n
+      ),
+    }));
+  };
+
+  const updateZoneCost = (zone: string, newCost: number) => {
+    setShippingConfig((prev) => ({
+      ...prev,
+      neighborhoods: prev.neighborhoods.map((n) =>
+        n.zone === zone ? { ...n, cost: Math.max(0, newCost) } : n
+      ),
+    }));
+  };
+
+  const addNeighborhood = (neighborhood: Omit<MontevideoNeighborhood, "id">) => {
+    const id = neighborhood.name
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]/g, "-")
+      .replace(/-+/g, "-")
+      .replace(/^-|-$/g, "");
+    setShippingConfig((prev) => ({
+      ...prev,
+      neighborhoods: [
+        ...prev.neighborhoods.filter((n) => n.id !== id),
+        { ...neighborhood, id: id || `barrio-${Date.now()}` },
+      ],
+    }));
+  };
+
+  const deleteNeighborhood = (id: string) => {
+    setShippingConfig((prev) => ({
+      ...prev,
+      neighborhoods: prev.neighborhoods.filter((n) => n.id !== id),
+    }));
+  };
+
+  const updateDefaultMontevideoCost = (cost: number) => {
+    setShippingConfig((prev) => ({
+      ...prev,
+      defaultMontevideoCost: Math.max(0, cost),
+    }));
+  };
+
+  const updateCanelonesCost = (cost: number) => {
+    setShippingConfig((prev) => ({
+      ...prev,
+      canelonesMaldonadoCost: Math.max(0, cost),
+    }));
+  };
+
+  const detectMontevideoNeighborhood = (address: string): MontevideoNeighborhood | null => {
+    if (!address || address.trim().length < 3) return null;
+    const cleanAddress = address
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9\s]/g, " ");
+
+    // Sort neighborhoods by name length descending so multi-word matches first
+    const sorted = [...shippingConfig.neighborhoods].sort(
+      (a, b) => b.name.length - a.name.length
+    );
+
+    for (const item of sorted) {
+      const cleanName = item.name
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9\s]/g, " ")
+        .trim();
+
+      if (!cleanName) continue;
+
+      // Match word boundaries in address
+      const regex = new RegExp(`(?:^|\\s)${cleanName}(?:\\s|$)`, "i");
+      if (regex.test(cleanAddress)) {
+        return item;
+      }
+    }
+    return null;
+  };
+
   return (
     <StoreContext.Provider
       value={{
@@ -518,6 +703,15 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         analytics,
         trackProductView,
         trackSearchQuery,
+
+        shippingConfig,
+        updateNeighborhoodCost,
+        updateZoneCost,
+        addNeighborhood,
+        deleteNeighborhood,
+        updateDefaultMontevideoCost,
+        updateCanelonesCost,
+        detectMontevideoNeighborhood,
 
         isAdminLoggedIn,
         loginAdmin,

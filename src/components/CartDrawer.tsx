@@ -21,6 +21,8 @@ import {
   User,
   Phone,
   AlertCircle,
+  Sparkles,
+  Info,
 } from "lucide-react";
 
 export default function CartDrawer() {
@@ -36,7 +38,13 @@ export default function CartDrawer() {
     clearCart,
   } = useCart();
 
-  const { appliedCoupon, applyCouponCode, removeAppliedCoupon } = useStore();
+  const {
+    appliedCoupon,
+    applyCouponCode,
+    removeAppliedCoupon,
+    shippingConfig,
+    detectMontevideoNeighborhood,
+  } = useStore();
 
   const [couponCodeInput, setCouponCodeInput] = useState("");
   const [couponFeedback, setCouponFeedback] = useState<{ success: boolean; message: string } | null>(null);
@@ -47,6 +55,8 @@ export default function CartDrawer() {
   // Método de Entrega: "envio" o "retiro"
   const [deliveryType, setDeliveryType] = useState<"envio" | "retiro">("envio");
   const [shippingZone, setShippingZone] = useState<"mvd" | "canelones_mld" | "interior">("mvd");
+  const [selectedNeighborhoodId, setSelectedNeighborhoodId] = useState<string>("");
+  const [preferredAgency, setPreferredAgency] = useState<string>("");
 
   // Datos del Cliente para Checkout
   const [customerName, setCustomerName] = useState("");
@@ -55,14 +65,40 @@ export default function CartDrawer() {
   const [customerNotes, setCustomerNotes] = useState("");
   const [validationError, setValidationError] = useState<string | null>(null);
 
-  // Costo de envío según zona
-  const shippingCosts = {
-    mvd: 180,
-    canelones_mld: 220,
-    interior: 250,
-  };
+  // Detección automática en tiempo real de barrio en Montevideo según la dirección ingresada
+  const detectedNeighborhood = React.useMemo(() => {
+    if (deliveryType !== "envio" || shippingZone !== "mvd" || !customerAddress.trim()) {
+      return null;
+    }
+    return detectMontevideoNeighborhood(customerAddress);
+  }, [customerAddress, deliveryType, shippingZone, detectMontevideoNeighborhood]);
 
-  const currentShippingCost = deliveryType === "retiro" ? 0 : shippingCosts[shippingZone];
+  // Si se detecta un barrio mediante el texto de la dirección, actualizar la selección
+  useEffect(() => {
+    if (detectedNeighborhood) {
+      setSelectedNeighborhoodId(detectedNeighborhood.id);
+    }
+  }, [detectedNeighborhood]);
+
+  const activeNeighborhood = React.useMemo(() => {
+    if (shippingZone !== "mvd") return null;
+    if (selectedNeighborhoodId) {
+      return shippingConfig.neighborhoods.find((n) => n.id === selectedNeighborhoodId) || null;
+    }
+    return detectedNeighborhood;
+  }, [shippingZone, selectedNeighborhoodId, detectedNeighborhood, shippingConfig.neighborhoods]);
+
+  // Costo de envío según zona y barrio
+  const currentShippingCost = React.useMemo(() => {
+    if (deliveryType === "retiro") return 0;
+    if (shippingZone === "interior") return 0; // Sin costo en la web, cobra agencia en destino
+    if (shippingZone === "canelones_mld") return shippingConfig.canelonesMaldonadoCost;
+    if (shippingZone === "mvd") {
+      if (activeNeighborhood) return activeNeighborhood.cost;
+      return shippingConfig.defaultMontevideoCost;
+    }
+    return 0;
+  }, [deliveryType, shippingZone, activeNeighborhood, shippingConfig]);
 
   // Recargo automático del 10% por Mercado Pago (no descuento)
   const mercadoPagoSurcharge = paymentMethod === "mercadopago" ? Math.round(subtotal * 0.1) : 0;
@@ -103,12 +139,18 @@ export default function CartDrawer() {
 
     setValidationError(null);
 
-    const zoneLabel =
-      shippingZone === "mvd"
-        ? "Montevideo ($180 UYU)"
-        : shippingZone === "canelones_mld"
-        ? "Canelones / Maldonado ($220 UYU)"
-        : "Interior del País DAC / Mirtrans ($250 UYU)";
+    let zoneLabel = "";
+    if (shippingZone === "mvd") {
+      if (activeNeighborhood) {
+        zoneLabel = `Montevideo - Barrio ${activeNeighborhood.name} ($${activeNeighborhood.cost} UYU)`;
+      } else {
+        zoneLabel = `Montevideo (Tarifa general: $${shippingConfig.defaultMontevideoCost} UYU)`;
+      }
+    } else if (shippingZone === "canelones_mld") {
+      zoneLabel = `Canelones / Maldonado ($${shippingConfig.canelonesMaldonadoCost} UYU)`;
+    } else {
+      zoneLabel = `Interior por Agencia ($0 UYU en tienda - Flete a abonar en agencia)`;
+    }
 
     let text = `*🛍️ NUEVO PEDIDO - PERFUMES IMPORTADOS*\n`;
     text += `*Lujos y Exclusividad • Montevideo, Uruguay*\n`;
@@ -120,7 +162,10 @@ export default function CartDrawer() {
 
     if (deliveryType === "envio") {
       text += `• *Dirección:* ${customerAddress.trim()}\n`;
-      text += `• *Zona de Envío:* ${zoneLabel}\n`;
+      text += `• *Zona / Barrio:* ${zoneLabel}\n`;
+      if (shippingZone === "interior" && preferredAgency.trim()) {
+        text += `• *Agencia de Encomiendas:* ${preferredAgency.trim()}\n`;
+      }
     } else {
       text += `• *Punto de Retiro:* Showroom Central (Coordinar horario de entrega)\n`;
     }
@@ -150,7 +195,11 @@ export default function CartDrawer() {
     }
 
     if (deliveryType === "envio") {
-      text += `• 🚗 *Costo de Envío:* $${currentShippingCost.toLocaleString()} UYU (${zoneLabel})\n`;
+      if (shippingZone === "interior") {
+        text += `• 📦 *Costo de Envío Tienda:* $0 UYU (Flete a cobrar por agencia en destino)\n`;
+      } else {
+        text += `• 🚗 *Costo de Envío:* $${currentShippingCost.toLocaleString()} UYU (${zoneLabel})\n`;
+      }
     } else {
       text += `• 🏪 *Retiro en Showroom:* $0 UYU (Gratis)\n`;
     }
@@ -339,17 +388,92 @@ export default function CartDrawer() {
                   </div>
 
                   {deliveryType === "envio" && (
-                    <div>
-                      <input
-                        type="text"
-                        placeholder="Dirección completa (Calle, Nº de puerta, esq./apto) *"
-                        value={customerAddress}
-                        onChange={(e) => {
-                          setCustomerAddress(e.target.value);
-                          setValidationError(null);
-                        }}
-                        className="w-full bg-noir-950 border border-white/15 focus:border-gold-500 rounded-xl px-3 py-2 text-xs text-sand-100 placeholder-sand-500 focus:outline-none"
-                      />
+                    <div className="space-y-2">
+                      <div className="relative">
+                        <MapPin className="w-4 h-4 text-gold-400 absolute left-3 top-3 -translate-y-1/2" />
+                        <input
+                          type="text"
+                          placeholder="Dirección completa (Calle, Nº de puerta, esq./apto) *"
+                          value={customerAddress}
+                          onChange={(e) => {
+                            setCustomerAddress(e.target.value);
+                            setValidationError(null);
+                          }}
+                          className="w-full bg-noir-950 border border-white/15 focus:border-gold-500 rounded-xl pl-9 pr-3 py-2 text-xs text-sand-100 placeholder-sand-500 focus:outline-none"
+                        />
+                      </div>
+
+                      {/* Envíos dentro de Montevideo: Detección inteligente + selector de barrio */}
+                      {shippingZone === "mvd" && (
+                        <div className="p-2.5 rounded-xl bg-noir-950/90 border border-gold-500/25 space-y-2">
+                          <div className="flex items-center justify-between text-[11px]">
+                            <span className="text-sand-300 font-semibold flex items-center gap-1.5">
+                              <Building2 className="w-3.5 h-3.5 text-gold-400" />
+                              Barrio de Montevideo:
+                            </span>
+                            {activeNeighborhood ? (
+                              <span className="text-emerald-400 font-semibold flex items-center gap-1 text-[11px] bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/30">
+                                <Check className="w-3 h-3" />
+                                {detectedNeighborhood?.id === activeNeighborhood.id
+                                  ? "Detectado automáticamente"
+                                  : "Barrio seleccionado"}
+                              </span>
+                            ) : (
+                              <span className="text-sand-500 text-[10px]">
+                                Detecta al escribir o elige debajo
+                              </span>
+                            )}
+                          </div>
+
+                          <select
+                            value={selectedNeighborhoodId}
+                            onChange={(e) => setSelectedNeighborhoodId(e.target.value)}
+                            className="w-full bg-noir-900 border border-white/15 rounded-xl px-2.5 py-1.5 text-xs text-sand-100 focus:outline-none focus:border-gold-400 cursor-pointer"
+                          >
+                            <option value="">
+                              -- Selecciona tu barrio -- (Predeterminado: ${shippingConfig.defaultMontevideoCost} UYU)
+                            </option>
+                            {shippingConfig.neighborhoods.map((n) => (
+                              <option key={n.id} value={n.id}>
+                                {n.name} — ${n.cost} UYU ({n.zone})
+                              </option>
+                            ))}
+                          </select>
+
+                          {activeNeighborhood && (
+                            <div className="flex items-center justify-between text-[11px] pt-1 border-t border-white/5">
+                              <span className="text-sand-400">
+                                Zona: <strong className="text-sand-200">{activeNeighborhood.zone}</strong>
+                              </span>
+                              <span className="text-gold-400 font-bold">
+                                Envío: ${activeNeighborhood.cost} UYU
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Envíos al Interior por Agencia ($0 UYU en web) */}
+                      {shippingZone === "interior" && (
+                        <div className="p-2.5 rounded-xl bg-emerald-950/30 border border-emerald-500/30 space-y-2">
+                          <div className="flex items-start gap-2">
+                            <Truck className="w-4 h-4 shrink-0 text-emerald-400 mt-0.5" />
+                            <div className="text-[11px] text-emerald-300 leading-tight">
+                              <strong className="block text-emerald-400 mb-0.5">
+                                Envío al Interior por Agencia: $0 UYU en web
+                              </strong>
+                              Despachamos por DAC, Mirtrans, Turil, De Punta o la agencia que prefieras. El costo de flete lo cobra directamente la agencia al recibir o retirar en destino.
+                            </div>
+                          </div>
+                          <input
+                            type="text"
+                            placeholder="Agencia de preferencia (ej: DAC Tres Cruces, Mirtrans...)"
+                            value={preferredAgency}
+                            onChange={(e) => setPreferredAgency(e.target.value)}
+                            className="w-full bg-noir-950 border border-emerald-500/25 focus:border-emerald-400 rounded-lg px-2.5 py-1.5 text-xs text-sand-100 placeholder-sand-500 focus:outline-none"
+                          />
+                        </div>
+                      )}
                     </div>
                   )}
 
@@ -364,6 +488,7 @@ export default function CartDrawer() {
                   </div>
                 </div>
               </div>
+
 
               {/* 2. SELECCIÓN DE FORMA DE PAGO (MERCADO PAGO CON 10% DE RECARGO) */}
               <div className="space-y-2">
@@ -444,18 +569,30 @@ export default function CartDrawer() {
                 </div>
 
                 {deliveryType === "envio" && (
-                  <select
-                    value={shippingZone}
-                    onChange={(e) =>
-                      setShippingZone(e.target.value as "mvd" | "canelones_mld" | "interior")
-                    }
-                    className="w-full bg-noir-900 border border-white/15 rounded-xl p-2 text-xs text-sand-100 focus:outline-none focus:border-gold-500 cursor-pointer mt-1"
-                  >
-                    <option value="mvd">Montevideo ($180 UYU)</option>
-                    <option value="canelones_mld">Canelones / Maldonado ($220 UYU)</option>
-                    <option value="interior">Interior del País - DAC / Mirtrans ($250 UYU)</option>
-                  </select>
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-medium text-sand-400 block">
+                      Zona de Destino:
+                    </label>
+                    <select
+                      value={shippingZone}
+                      onChange={(e) =>
+                        setShippingZone(e.target.value as "mvd" | "canelones_mld" | "interior")
+                      }
+                      className="w-full bg-noir-900 border border-white/15 rounded-xl p-2 text-xs text-sand-100 focus:outline-none focus:border-gold-500 cursor-pointer"
+                    >
+                      <option value="mvd">
+                        Montevideo (Tarifa según barrio: $150 a $250 UYU)
+                      </option>
+                      <option value="canelones_mld">
+                        Canelones / Maldonado (${shippingConfig.canelonesMaldonadoCost} UYU)
+                      </option>
+                      <option value="interior">
+                        Interior del País por Agencia ($0 UYU en web • Flete a cobrar por agencia)
+                      </option>
+                    </select>
+                  </div>
                 )}
+
               </div>
 
               {/* 4. ENTRADA DE CUPÓN DE DESCUENTO */}
@@ -526,8 +663,15 @@ export default function CartDrawer() {
 
                 <div className="flex justify-between text-sand-400">
                   <span>Costo de Envío / Entrega:</span>
-                  <span>{currentShippingCost === 0 ? "Gratis" : formatPrice(currentShippingCost)}</span>
+                  <span className="font-semibold text-sand-200">
+                    {deliveryType === "retiro"
+                      ? "Gratis (Pickup Showroom)"
+                      : shippingZone === "interior"
+                      ? "Sin Costo Web ($0 UYU - Flete en agencia)"
+                      : formatPrice(currentShippingCost)}
+                  </span>
                 </div>
+
 
                 <div className="flex justify-between items-baseline pt-2 border-t border-white/5">
                   <span className="text-xs font-bold uppercase tracking-widest text-sand-100">

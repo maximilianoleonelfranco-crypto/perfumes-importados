@@ -8,6 +8,7 @@ import ProductsTab from "@/components/admin/ProductsTab";
 import CategoriesTab from "@/components/admin/CategoriesTab";
 import CouponsTab from "@/components/admin/CouponsTab";
 import PromotionsTab from "@/components/admin/PromotionsTab";
+import ShippingTab from "@/components/admin/ShippingTab";
 import { ShieldAlert, KeyRound, Lock, ArrowLeft, Sparkles, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 
@@ -132,7 +133,9 @@ export default function AdminPage() {
         {activeTab === "categories" && <CategoriesTab />}
         {activeTab === "coupons" && <CouponsTab />}
         {activeTab === "promotions" && <PromotionsTab />}
+        {activeTab === "shipping" && <ShippingTab />}
       </main>
     </div>
   );
 }
+

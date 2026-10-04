@@ -11,10 +11,11 @@ import {
   LogOut,
   ExternalLink,
   ShieldCheck,
+  Truck,
 } from "lucide-react";
 import Link from "next/link";
 
-export type AdminTab = "dashboard" | "products" | "categories" | "coupons" | "promotions";
+export type AdminTab = "dashboard" | "products" | "categories" | "coupons" | "promotions" | "shipping";
 
 interface AdminHeaderProps {
   activeTab: AdminTab;
@@ -22,7 +23,7 @@ interface AdminHeaderProps {
 }
 
 export default function AdminHeader({ activeTab, setActiveTab }: AdminHeaderProps) {
-  const { logoutAdmin, products, coupons, categories } = useStore();
+  const { logoutAdmin, products, coupons, categories, shippingConfig } = useStore();
 
   const outOfStockCount = products.filter((p) => p.stock === 0).length;
 
@@ -32,6 +33,7 @@ export default function AdminHeader({ activeTab, setActiveTab }: AdminHeaderProp
     { id: "categories", label: "Categorías", icon: FolderTree, badge: categories.length },
     { id: "coupons", label: "Cupones Descuento", icon: Ticket, badge: coupons.filter(c => c.isActive).length },
     { id: "promotions", label: "Ofertas & Promos", icon: Flame },
+    { id: "shipping", label: "Envíos & Barrios", icon: Truck, badge: `${shippingConfig.neighborhoods.length} Barrios` },
   ];
 
   return (
