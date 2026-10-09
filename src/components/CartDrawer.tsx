@@ -121,19 +121,30 @@ export default function CartDrawer() {
 
   if (!isCartOpen) return null;
 
+  const checkoutScrollRef = React.useRef<HTMLDivElement>(null);
+
   // Generar mensaje detallado para enviar directamente por WhatsApp al 097837529
   const handleSendToWhatsApp = () => {
     // Validación de campos del cliente
     if (!customerName.trim()) {
       setValidationError("Por favor ingresa tu nombre y apellido para el pedido.");
+      if (checkoutScrollRef.current) {
+        checkoutScrollRef.current.scrollTo({ top: 0, behavior: "smooth" });
+      }
       return;
     }
     if (!customerPhone.trim()) {
       setValidationError("Por favor ingresa tu número de WhatsApp / teléfono de contacto.");
+      if (checkoutScrollRef.current) {
+        checkoutScrollRef.current.scrollTo({ top: 0, behavior: "smooth" });
+      }
       return;
     }
     if (deliveryType === "envio" && !customerAddress.trim()) {
       setValidationError("Por favor ingresa tu dirección de entrega completa.");
+      if (checkoutScrollRef.current) {
+        checkoutScrollRef.current.scrollTo({ top: 0, behavior: "smooth" });
+      }
       return;
     }
 
@@ -192,6 +203,8 @@ export default function CartDrawer() {
 
     if (paymentMethod === "mercadopago") {
       text += `• 💳 *Recargo Mercado Pago (+10%):* +$${mercadoPagoSurcharge.toLocaleString()} UYU\n`;
+    } else {
+      text += `• 💳 *Forma de Pago:* Efectivo / BROU (Sin recargo)\n`;
     }
 
     if (deliveryType === "envio") {
@@ -204,20 +217,38 @@ export default function CartDrawer() {
       text += `• 🏪 *Retiro en Showroom:* $0 UYU (Gratis)\n`;
     }
 
-    text += `\n🏷️ *TOTAL A PAGAR:* *$${grandTotal.toLocaleString()} UYU*\n\n`;
-    text += `💳 *Forma de Pago:* ${
-      paymentMethod === "mercadopago"
-        ? "Mercado Pago (+10% de recargo incluido)"
-        : "Efectivo / Transferencia BROU (Sin recargo)"
-    }\n`;
+    text += `\n🏷️ *TOTAL A PAGAR:* *$${grandTotal.toLocaleString()} UYU*\n`;
     text += `------------------------------------\n`;
     text += `¡Hola! Acabo de registrar este pedido desde la tienda online. Aguardo confirmación para coordinar el pago y la entrega. ¡Muchas gracias!`;
 
     const encodedText = encodeURIComponent(text);
     // Número oficial uruguayo configurado: 097 837 529 -> +598 97 837 529
-    const whatsappUrl = `https://wa.me/59897837529?text=${encodedText}`;
-    window.open(whatsappUrl, "_blank");
+    const whatsappUrl = `https://api.whatsapp.com/send?phone=59897837529&text=${encodedText}`;
+
+    // Disparar apertura garantizada tanto en celular como en computadora
+    try {
+      const isMobile =
+        typeof navigator !== "undefined" &&
+        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+          navigator.userAgent
+        );
+
+      if (isMobile) {
+        // En móviles, asignación directa para no ser bloqueado por filtros de ventanas emergentes
+        window.location.href = whatsappUrl;
+      } else {
+        // En computadoras, intentar abrir pestaña de WhatsApp Web
+        const newWin = window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+        // Si el navegador bloqueó la ventana emergente, redirigir en la misma pestaña
+        if (!newWin || newWin.closed || typeof newWin.closed === "undefined") {
+          window.location.href = whatsappUrl;
+        }
+      }
+    } catch {
+      window.location.href = whatsappUrl;
+    }
   };
+
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden overscroll-contain">
@@ -344,12 +375,15 @@ export default function CartDrawer() {
 
           {/* Pie de Checkout Avanzado: Datos de Cliente + Pago + Envío + WhatsApp */}
           {cart.length > 0 && (
-            <div className="p-5 border-t border-white/10 bg-noir-950 space-y-4 max-h-[60dvh] overflow-y-auto overscroll-y-contain -webkit-overflow-scrolling-touch">
+            <div
+              ref={checkoutScrollRef}
+              className="p-5 border-t border-white/10 bg-noir-950 space-y-4 max-h-[60dvh] overflow-y-auto overscroll-y-contain -webkit-overflow-scrolling-touch"
+            >
               {/* ALERTA DE VALIDACIÓN SI FALTA INFORMACIÓN */}
               {validationError && (
                 <div className="p-3 bg-red-950/80 border border-red-500/50 rounded-xl text-red-300 text-xs flex items-center gap-2 animate-fade-in">
                   <AlertCircle className="w-4 h-4 shrink-0 text-red-400" />
-                  <span>{validationError}</span>
+                  <span className="font-semibold">{validationError}</span>
                 </div>
               )}
 
@@ -370,7 +404,11 @@ export default function CartDrawer() {
                         setCustomerName(e.target.value);
                         setValidationError(null);
                       }}
-                      className="w-full bg-noir-950 border border-white/15 focus:border-gold-500 rounded-xl px-3 py-2 text-xs text-sand-100 placeholder-sand-500 focus:outline-none"
+                      className={`w-full bg-noir-950 border ${
+                        validationError && !customerName.trim()
+                          ? "border-red-500 ring-1 ring-red-500/50"
+                          : "border-white/15 focus:border-gold-500"
+                      } rounded-xl px-3 py-2 text-xs text-sand-100 placeholder-sand-500 focus:outline-none`}
                     />
                   </div>
 
@@ -383,7 +421,11 @@ export default function CartDrawer() {
                         setCustomerPhone(e.target.value);
                         setValidationError(null);
                       }}
-                      className="w-full bg-noir-950 border border-white/15 focus:border-gold-500 rounded-xl px-3 py-2 text-xs text-sand-100 placeholder-sand-500 focus:outline-none"
+                      className={`w-full bg-noir-950 border ${
+                        validationError && !customerPhone.trim()
+                          ? "border-red-500 ring-1 ring-red-500/50"
+                          : "border-white/15 focus:border-gold-500"
+                      } rounded-xl px-3 py-2 text-xs text-sand-100 placeholder-sand-500 focus:outline-none`}
                     />
                   </div>
 
@@ -399,9 +441,14 @@ export default function CartDrawer() {
                             setCustomerAddress(e.target.value);
                             setValidationError(null);
                           }}
-                          className="w-full bg-noir-950 border border-white/15 focus:border-gold-500 rounded-xl pl-9 pr-3 py-2 text-xs text-sand-100 placeholder-sand-500 focus:outline-none"
+                          className={`w-full bg-noir-950 border ${
+                            validationError && !customerAddress.trim()
+                              ? "border-red-500 ring-1 ring-red-500/50"
+                              : "border-white/15 focus:border-gold-500"
+                          } rounded-xl pl-9 pr-3 py-2 text-xs text-sand-100 placeholder-sand-500 focus:outline-none`}
                         />
                       </div>
+
 
                       {/* Envíos dentro de Montevideo: Detección inteligente + selector de barrio */}
                       {shippingZone === "mvd" && (
@@ -683,12 +730,21 @@ export default function CartDrawer() {
                 </div>
               </div>
 
+              {/* ALERTA DE VALIDACIÓN INMEDIATA SOBRE EL BOTÓN */}
+              {validationError && (
+                <div className="p-3 bg-red-950/90 border border-red-500/60 rounded-xl text-red-200 text-xs flex items-center gap-2 animate-fade-in shadow-lg">
+                  <AlertCircle className="w-4 h-4 shrink-0 text-red-400" />
+                  <span className="font-semibold">{validationError}</span>
+                </div>
+              )}
+
               {/* BOTÓN ENVIAR PEDIDO POR WHATSAPP AL 097 837 529 */}
               <button
+                type="button"
                 onClick={handleSendToWhatsApp}
-                className="w-full py-3.5 px-4 text-xs font-bold uppercase tracking-wider text-noir-950 bg-gradient-to-r from-emerald-400 via-emerald-500 to-emerald-400 hover:from-emerald-300 hover:to-emerald-500 rounded-2xl transition-all duration-300 flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 cursor-pointer"
+                className="w-full py-4 px-4 text-xs sm:text-sm font-bold uppercase tracking-wider text-noir-950 bg-gradient-to-r from-emerald-400 via-emerald-500 to-emerald-400 hover:from-emerald-300 hover:to-emerald-500 rounded-2xl transition-all duration-300 flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/25 cursor-pointer active:scale-98"
               >
-                <MessageCircle className="w-5 h-5 fill-noir-950 text-emerald-500" />
+                <MessageCircle className="w-5 h-5 fill-noir-950 text-emerald-500 shrink-0" />
                 <span>Enviar Pedido a WhatsApp ({formatPrice(grandTotal)})</span>
               </button>
 
@@ -696,6 +752,7 @@ export default function CartDrawer() {
                 <ShieldCheck className="w-3.5 h-3.5 text-gold-500" />
                 <span>100% Originales &bull; Envíos a todo Uruguay</span>
               </div>
+
             </div>
           )}
         </div>

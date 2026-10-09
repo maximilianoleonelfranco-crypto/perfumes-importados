@@ -26,7 +26,7 @@ export default function Hero() {
         </div>
 
         {/* Banner Principal con la Imagen Oficial Solicitada */}
-        <div className="relative w-full max-w-4xl mx-auto rounded-3xl overflow-hidden border border-gold-500/40 shadow-[0_0_60px_rgba(212,175,55,0.22)] mb-8 group bg-noir-950">
+        <div className="relative w-full max-w-4xl mx-auto rounded-3xl overflow-hidden border border-gold-500/40 shadow-[0_0_60px_rgba(212,175,55,0.22)] mb-5 group bg-noir-950">
           <Image
             src="/images/hero-banner.jpg"
             alt="Perfumes Importados - Fragancias originales de lujo"
@@ -40,22 +40,16 @@ export default function Hero() {
           <div className="absolute inset-0 border border-gold-500/30 rounded-3xl pointer-events-none" />
         </div>
 
-        {/* Tipografía Oficial en Sintonía con el Banner */}
-        <div className="max-w-3xl mx-auto mb-8 text-center animate-fade-in">
-          <h1 className="font-cinzel text-3xl sm:text-5xl md:text-6xl font-bold tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-[#FFF8D6] via-[#E2BA55] to-[#B88728] leading-tight drop-shadow-[0_4px_16px_rgba(0,0,0,0.8)]">
-            PERFUMES IMPORTADOS
-          </h1>
-          <div className="w-36 sm:w-64 h-[1.5px] bg-gradient-to-r from-transparent via-[#E2BA55] to-transparent mx-auto my-3 sm:my-4" />
-          <p className="font-playfair italic text-xl sm:text-2xl md:text-3xl text-gold-300 font-normal drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] mb-4">
-            Fragancias originales de lujo
-          </p>
+        {/* Línea divisoria dorada y descripción */}
+        <div className="max-w-3xl mx-auto mb-6 text-center animate-fade-in">
+          <div className="w-48 sm:w-80 h-[2px] bg-gradient-to-r from-transparent via-[#E2BA55] to-transparent mx-auto my-4 sm:my-5" />
           <p className="text-sand-300 text-xs sm:text-sm md:text-base font-light leading-relaxed tracking-wide font-montserrat max-w-2xl mx-auto">
             Acceda a las marcas más exclusivas de la perfumería árabe e importada de diseñador en Uruguay. Lotes 100% auténticos importados de origen y stock listo para entrega inmediata.
           </p>
         </div>
 
         {/* Botón CTA Explorar */}
-        <div className="flex items-center justify-center gap-5 w-full sm:w-auto mb-14">
+        <div className="flex items-center justify-center gap-5 w-full sm:w-auto mb-10">
           <a
             href="#catalogo"
             className="w-full sm:w-auto inline-flex items-center justify-center px-10 py-4 text-xs font-bold uppercase tracking-widest text-noir-950 bg-gradient-to-r from-gold-400 via-gold-500 to-amber-500 hover:from-gold-300 hover:to-gold-500 transition-all duration-300 rounded-full shadow-gold-glow group active:scale-95"

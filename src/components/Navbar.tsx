@@ -50,26 +50,57 @@ export default function Navbar({ onSearchClick }: NavbarProps) {
       {/* Navegación principal */}
       <nav className="luxury-glass px-4 md:px-8 py-3 transition-all duration-300">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
-          {/* Controles de Navegación Rápida: Volver atrás e Ir a Inicio */}
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handleGoBack}
-              className="p-2 rounded-xl bg-noir-900 border border-white/10 hover:border-gold-500/40 text-sand-300 hover:text-gold-300 transition-colors flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider"
-              title="Volver atrás"
-            >
-              <ArrowLeft className="w-4 h-4 text-gold-400" />
-              <span className="hidden lg:inline">Atrás</span>
-            </button>
+          {/* Controles de Navegación Rápida & Enlaces (Desktop) */}
+          <div className="flex items-center gap-3 sm:gap-6">
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleGoBack}
+                className="p-2 rounded-xl bg-noir-900 border border-white/10 hover:border-gold-500/40 text-sand-300 hover:text-gold-300 transition-colors flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider"
+                title="Volver atrás"
+              >
+                <ArrowLeft className="w-4 h-4 text-gold-400" />
+                <span className="hidden lg:inline">Atrás</span>
+              </button>
 
-            <Link
-              href="/"
-              className="p-2 rounded-xl bg-noir-900 border border-white/10 hover:border-gold-500/40 text-sand-300 hover:text-gold-300 transition-colors flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider"
-              title="Ir al inicio"
-            >
-              <Home className="w-4 h-4 text-gold-400" />
-              <span className="hidden lg:inline">Inicio</span>
-            </Link>
+              <Link
+                href="/"
+                className="p-2 rounded-xl bg-noir-900 border border-white/10 hover:border-gold-500/40 text-sand-300 hover:text-gold-300 transition-colors flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider"
+                title="Ir al inicio"
+              >
+                <Home className="w-4 h-4 text-gold-400" />
+                <span className="hidden lg:inline">Inicio</span>
+              </Link>
+            </div>
+
+            {/* Enlaces de Navegación (Desktop) */}
+            <div className="hidden md:flex items-center space-x-6 text-xs uppercase tracking-widest text-sand-300">
+              <a
+                href="#catalogo"
+                className="hover:text-gold-300 transition-colors py-1 relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[1px] after:bg-gold-400 hover:after:w-full after:transition-all after:duration-300"
+              >
+                Catálogo
+              </a>
+              <a
+                href="#catalogo-disenador"
+                className="hover:text-gold-300 transition-colors py-1 relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[1px] after:bg-gold-400 hover:after:w-full after:transition-all after:duration-300"
+              >
+                Diseñador
+              </a>
+              <a
+                href="#catalogo-arabes"
+                className="hover:text-gold-300 transition-colors py-1 relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[1px] after:bg-gold-400 hover:after:w-full after:transition-all after:duration-300"
+              >
+                Árabes
+              </a>
+              <a
+                href="#pilares-olfativos"
+                className="hover:text-gold-300 transition-colors py-1 relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[1px] after:bg-gold-400 hover:after:w-full after:transition-all after:duration-300"
+              >
+                Familias Olfativas
+              </a>
+            </div>
           </div>
+
           {/* Botón de Menú Móvil */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -79,48 +110,6 @@ export default function Navbar({ onSearchClick }: NavbarProps) {
             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
 
-          {/* Enlaces de Navegación Izquierda (Desktop) - Sin 'Pirámide Olfativa' */}
-          <div className="hidden md:flex items-center space-x-7 text-xs uppercase tracking-widest text-sand-300">
-            <a
-              href="#catalogo"
-              className="hover:text-gold-300 transition-colors py-1 relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[1px] after:bg-gold-400 hover:after:w-full after:transition-all after:duration-300"
-            >
-              Catálogo
-            </a>
-            <a
-              href="#catalogo-disenador"
-              className="hover:text-gold-300 transition-colors py-1 relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[1px] after:bg-gold-400 hover:after:w-full after:transition-all after:duration-300"
-            >
-              Diseñador
-            </a>
-            <a
-              href="#catalogo-arabes"
-              className="hover:text-gold-300 transition-colors py-1 relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[1px] after:bg-gold-400 hover:after:w-full after:transition-all after:duration-300"
-            >
-              Árabes
-            </a>
-            <a
-              href="#pilares-olfativos"
-              className="hover:text-gold-300 transition-colors py-1 relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[1px] after:bg-gold-400 hover:after:w-full after:transition-all after:duration-300"
-            >
-              Familias Olfativas
-            </a>
-          </div>
-
-          {/* Logotipo Central Sofisticado: Perfumes Importados - Lujos y Exclusividad */}
-          <div className="text-center group cursor-pointer">
-            <a href="#" className="inline-block">
-              <span className="block text-[9px] tracking-[0.35em] text-gold-500 uppercase font-montserrat font-medium mb-0.5">
-                Montevideo &bull; Uruguay
-              </span>
-              <span className="font-cinzel text-xl md:text-2xl lg:text-3xl font-bold tracking-widest text-sand-50 group-hover:text-gold-300 transition-colors">
-                PERFUMES IMPORTADOS
-              </span>
-              <span className="block text-[11px] tracking-wider text-gold-400 font-playfair italic mt-0.5">
-                Fragancias originales de lujo
-              </span>
-            </a>
-          </div>
 
           {/* Controles de la Derecha */}
           <div className="flex items-center space-x-5">
