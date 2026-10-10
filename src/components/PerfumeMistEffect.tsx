@@ -75,11 +75,10 @@ export default function PerfumeMistEffect({
       {/* Botón sutil en móvil para activar la atomización al tacto */}
       <button
         onClick={triggerMobileSpray}
-        className="md:hidden absolute top-3 right-3 z-30 px-2.5 py-1 bg-noir-950/95 border border-gold-500/50 rounded-full text-[10px] text-gold-300 font-semibold flex items-center gap-1.5 active:scale-90 transition-transform shadow-gold-glow"
+        className="md:hidden absolute top-2 right-2 sm:top-3 sm:right-3 z-30 px-1.5 sm:px-2.5 py-0.5 sm:py-1 bg-noir-950/95 border border-gold-500/50 rounded-full text-[8px] sm:text-[10px] text-gold-300 font-semibold flex items-center gap-1 active:scale-90 transition-transform shadow-gold-glow"
         aria-label="Atomizar perfume"
       >
-
-        <Sparkles className="w-3 h-3 text-gold-400" />
+        <Sparkles className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-gold-400" />
         <span>Vaporizar</span>
       </button>
 

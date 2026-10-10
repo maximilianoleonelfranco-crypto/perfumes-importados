@@ -37,45 +37,45 @@ export default function ProductCard({ product }: ProductCardProps) {
 
   return (
     <div 
-      className="group relative flex flex-col bg-noir-900 rounded-2xl transition-all duration-500 ease-out border border-white/5 hover:border-gold-500/40 hover:shadow-gold-glow cursor-pointer overflow-hidden"
+      className="group relative flex flex-col bg-noir-900 rounded-xl sm:rounded-2xl transition-all duration-500 ease-out border border-white/5 hover:border-gold-500/40 hover:shadow-gold-glow cursor-pointer overflow-hidden"
       onClick={handleCardClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Insignia / Badges de Stock, Descuento, Decant y Ofertas */}
-      <div className="absolute top-3 left-3 z-20 flex flex-col gap-1 pointer-events-none">
+      <div className="absolute top-2 left-2 sm:top-3 sm:left-3 z-20 flex flex-col gap-1 pointer-events-none">
         {product.stock === 0 ? (
-          <span className="inline-block px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white bg-red-600 rounded-md border border-red-400 shadow-md">
+          <span className="inline-block px-1.5 sm:px-2.5 py-0.5 sm:py-1 text-[8px] sm:text-[10px] font-bold uppercase tracking-wider text-white bg-red-600 rounded-md border border-red-400 shadow-md">
             AGOTADO
           </span>
         ) : product.stock <= 3 ? (
-          <span className="inline-block px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-noir-950 bg-amber-400 rounded-md shadow-md">
-            ¡Últimas {product.stock} un.!
+          <span className="inline-block px-1.5 sm:px-2.5 py-0.5 sm:py-1 text-[8px] sm:text-[10px] font-bold uppercase tracking-wider text-noir-950 bg-amber-400 rounded-md shadow-md">
+            ¡Últimas {product.stock}!
           </span>
         ) : null}
 
         {product.availableForDecant && product.stock > 0 && (
-          <span className="inline-block px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-cyan-300 bg-noir-950/95 border border-cyan-500/40 rounded-md flex items-center gap-1 shadow-sm">
+          <span className="inline-block px-1.5 sm:px-2 py-0.5 text-[8px] sm:text-[9px] font-bold uppercase tracking-wider text-cyan-300 bg-noir-950/95 border border-cyan-500/40 rounded-md flex items-center gap-1 shadow-sm">
             <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-            Decant 10ml
+            Decant
           </span>
         )}
 
         {product.badge && (
-          <span className="inline-block px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-black bg-gold-400 rounded-md shadow-sm">
+          <span className="inline-block px-1.5 sm:px-2.5 py-0.5 sm:py-1 text-[8px] sm:text-[10px] font-bold uppercase tracking-wider text-black bg-gold-400 rounded-md shadow-sm">
             {product.badge}
           </span>
         )}
 
         {product.discount && (
-          <span className="inline-block px-2 py-0.5 text-[11px] font-bold text-emerald-400 bg-noir-950/95 border border-emerald-500/40 rounded-md shadow-sm">
+          <span className="inline-block px-1.5 sm:px-2 py-0.5 text-[8px] sm:text-[11px] font-bold text-emerald-400 bg-noir-950/95 border border-emerald-500/40 rounded-md shadow-sm">
             {product.discount}
           </span>
         )}
       </div>
 
       {/* Contenedor de Imagen de Frasco */}
-      <div className="relative w-full aspect-[4/5] bg-noir-950/70 overflow-hidden flex items-center justify-center p-4">
+      <div className="relative w-full aspect-[4/5] bg-noir-950/70 overflow-hidden flex items-center justify-center p-2 sm:p-4">
         {/* EFECTO DE ATOMIZACIÓN / VAPORIZACIÓN DE PERFUME AL PASAR EL MOUSE O TOCAR EN MÓVIL */}
         <PerfumeMistEffect isHovered={isHovered} />
 
@@ -85,7 +85,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             src={product.imageUrl}
             alt={product.title}
             fill
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 33vw"
             className="object-contain object-center transition-transform duration-500 ease-out group-hover:scale-105"
           />
         </div>
@@ -93,7 +93,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         {/* Gradiente sutil inferior */}
         <div className="absolute inset-0 bg-gradient-to-t from-noir-900 via-transparent to-transparent opacity-50 pointer-events-none" />
 
-        {/* PANEL REVELABLE AL HOVER (Desktop) y accesible en móvil: Notas con Emojis */}
+        {/* PANEL REVELABLE AL HOVER (Desktop): Notas con Emojis */}
         <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-noir-950 via-noir-950/95 to-noir-950/90 border-t border-gold-500/20 translate-y-3 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 ease-out z-20 flex flex-col justify-end">
           <div className="text-[10px] uppercase tracking-widest text-gold-400 font-medium mb-1.5 flex items-center justify-between">
             <div className="flex items-center gap-1.5">
@@ -126,48 +126,53 @@ export default function ProductCard({ product }: ProductCardProps) {
       </div>
 
       {/* Información del Producto con Jerarquía Visual Clara */}
-      <div className="p-5 flex flex-col flex-grow justify-between bg-black">
+      <div className="p-2.5 sm:p-5 flex flex-col flex-grow justify-between bg-black">
         <div>
           {/* Marca */}
-          <div className="text-[10px] tracking-widest uppercase text-gold-500/80 mb-1 font-semibold">
+          <div className="text-[8px] sm:text-[10px] tracking-wider uppercase text-gold-500/80 mb-0.5 sm:mb-1 font-semibold truncate">
             {product.brand || (product.category === "perfumes-arabes" ? "Maison Árabe" : "Diseñador")}
           </div>
 
           {/* Título */}
-          <h3 className="font-montserrat font-bold text-sm text-sand-50 group-hover:text-gold-300 transition-colors duration-300 leading-snug line-clamp-1 mb-2">
+          <h3 className="font-montserrat font-bold text-xs sm:text-sm text-sand-50 group-hover:text-gold-300 transition-colors duration-300 leading-snug line-clamp-2 mb-1.5 sm:mb-2 min-h-[2rem] sm:min-h-0">
             {product.title}
           </h3>
 
-          {/* Notas visibles en vista móvil directamente para enriquecer la experiencia táctil */}
-          <div className="md:hidden flex flex-wrap gap-1 mb-3">
-            {product.notes.slice(0, 3).map((note, idx) => (
-              <NoteBadge key={idx} note={note} size="sm" />
+          {/* Notas visibles en vista móvil: 2 notas compactas */}
+          <div className="md:hidden flex flex-wrap gap-1 mb-2">
+            {product.notes.slice(0, 2).map((note, idx) => (
+              <span
+                key={idx}
+                className="text-[8px] px-1.5 py-0.5 bg-noir-900/90 text-sand-300 border border-gold-500/20 rounded truncate max-w-[85px]"
+              >
+                {note}
+              </span>
             ))}
           </div>
 
           {/* Fila de Precios y Descuentos */}
-          <div className="flex items-center gap-2 mb-4">
+          <div className="flex flex-wrap items-baseline gap-1 sm:gap-2 mb-2.5 sm:mb-4">
             {product.originalPrice && (
-              <span className="text-xs text-sand-500 line-through">
+              <span className="text-[10px] sm:text-xs text-sand-500 line-through">
                 {formatPrice(product.originalPrice)}
               </span>
             )}
-            <span className="font-montserrat font-bold text-base text-gold-400">
+            <span className="font-montserrat font-bold text-xs sm:text-base text-gold-400">
               {formatPrice(product.price)}
             </span>
             {product.discount && (
-              <span className="text-xs font-semibold text-emerald-400">
+              <span className="text-[9px] sm:text-xs font-semibold text-emerald-400">
                 {product.discount}
               </span>
             )}
           </div>
         </div>
 
-        {/* Botón "Agregar al carrito" en estilo píldora dorada */}
+        {/* Botón "Agregar al carrito" en estilo píldora dorada adaptativo */}
         <button
           onClick={handleAddToCart}
           disabled={product.stock === 0}
-          className={`w-full py-2.5 px-4 rounded-full text-xs font-semibold uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-2 shadow-sm ${
+          className={`w-full py-1.5 sm:py-2.5 px-2 sm:px-4 rounded-full text-[10px] sm:text-xs font-semibold uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-1 sm:gap-2 shadow-sm ${
             product.stock === 0
               ? "bg-noir-950 border border-red-500/40 text-red-400 cursor-not-allowed opacity-80"
               : isAdded
@@ -177,16 +182,20 @@ export default function ProductCard({ product }: ProductCardProps) {
           aria-label={`Agregar ${product.title} al carrito`}
         >
           {product.stock === 0 ? (
-            <span>Sin Stock Disponible</span>
+            <>
+              <span className="hidden sm:inline">Sin Stock Disponible</span>
+              <span className="sm:hidden">Sin Stock</span>
+            </>
           ) : isAdded ? (
             <>
-              <Check className="w-4 h-4" />
+              <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               <span>Añadido</span>
             </>
           ) : (
             <>
-              <ShoppingBag className="w-3.5 h-3.5" />
-              <span>Agregar al carrito</span>
+              <ShoppingBag className="w-3 sm:w-3.5 h-3 sm:h-3.5" />
+              <span className="hidden sm:inline">Agregar al carrito</span>
+              <span className="sm:hidden">Agregar</span>
             </>
           )}
         </button>

@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Product, useStore } from "@/context/StoreContext";
-import { X, Plus, Sparkles, Check, Package, Droplets, Tag } from "lucide-react";
+import { X, Plus, Sparkles, Check, Package, Droplets, Tag, Upload, Image as ImageIcon } from "lucide-react";
 
 interface AddProductModalProps {
   isOpen: boolean;
@@ -16,6 +16,8 @@ export default function AddProductModal({
   editingProduct,
 }: AddProductModalProps) {
   const { addProduct, updateProduct, categories } = useStore();
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [title, setTitle] = useState("");
   const [brand, setBrand] = useState("");
@@ -34,6 +36,31 @@ export default function AddProductModal({
   const [badge, setBadge] = useState("");
 
   const [savedSuccess, setSavedSuccess] = useState(false);
+
+  // Bloquear scroll de la página mientras el modal esté abierto para evitar que se desplace
+  useEffect(() => {
+    if (isOpen) {
+      const orig = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = orig;
+      };
+    }
+  }, [isOpen]);
+
+  // Manejar subida de imagen desde el explorador de archivos local
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === "string") {
+        setImageUrl(reader.result);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
 
   useEffect(() => {
     if (editingProduct) {
@@ -133,24 +160,24 @@ export default function AddProductModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center p-3 sm:p-6 overflow-y-auto overscroll-y-contain -webkit-overflow-scrolling-touch py-6 sm:py-10">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-noir-950/85 backdrop-blur-md">
       <div
-        className="fixed inset-0 bg-noir-950/85 backdrop-blur-md transition-opacity"
+        className="fixed inset-0"
         onClick={onClose}
       />
 
-      <div className="relative w-full max-w-3xl bg-noir-900 border border-gold-500/40 rounded-2xl shadow-2xl overflow-hidden z-10 my-auto animate-fade-in text-sand-100">
+      <div className="relative w-full max-w-3xl max-h-[90vh] flex flex-col bg-noir-900 border border-gold-500/40 rounded-2xl shadow-2xl overflow-hidden z-10 animate-fade-in text-sand-100">
         {/* Encabezado del Modal */}
-        <div className="p-6 bg-noir-950 border-b border-white/10 flex items-center justify-between">
+        <div className="p-5 sm:p-6 bg-noir-950 border-b border-white/10 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full border border-gold-500/40 bg-noir-900 flex items-center justify-center text-gold-400">
               <Package className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-cinzel text-xl font-bold text-sand-50">
+              <h3 className="font-cinzel text-lg sm:text-xl font-bold text-sand-50">
                 {editingProduct ? "Editar Perfume" : "Agregar Nuevo Perfume"}
               </h3>
-              <p className="text-xs text-sand-400">
+              <p className="text-[11px] sm:text-xs text-sand-400">
                 Administre los datos del catálogo, stock y disponibilidad para decants.
               </p>
             </div>
@@ -164,7 +191,7 @@ export default function AddProductModal({
         </div>
 
         {/* Formulario */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-6 max-h-[75dvh] overflow-y-auto overscroll-y-contain -webkit-overflow-scrolling-touch">
+        <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-6 flex-1 overflow-y-auto scrollbar-thin">
           {savedSuccess && (
             <div className="p-4 bg-emerald-500/10 border border-emerald-500/50 rounded-xl text-emerald-400 text-xs font-semibold flex items-center gap-2 animate-fade-in">
               <Check className="w-5 h-5 text-emerald-400 shrink-0" />
@@ -374,17 +401,59 @@ export default function AddProductModal({
             </span>
           </div>
 
+          {/* Subida de Imagen desde Dispositivo (Explorador de Archivos) */}
           <div>
-            <label className="block text-xs uppercase tracking-wider text-sand-300 mb-1 font-medium">
-              Ruta o URL de Imagen
+            <label className="block text-xs uppercase tracking-wider text-sand-300 mb-2 font-medium">
+              Imagen del Perfume (Subir desde Dispositivo)
             </label>
             <input
-              type="text"
-              placeholder="ej. /images/products/khamrah-lattafa.jpg"
-              value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
-              className="w-full bg-noir-950 border border-white/15 rounded-xl px-3.5 py-2.5 text-xs text-sand-100 focus:outline-none focus:border-gold-500"
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleFileUpload}
+              className="hidden"
             />
+
+            <div className="flex flex-col sm:flex-row items-center gap-4 bg-noir-950 p-4 border border-white/15 rounded-2xl">
+              {/* Preview de la imagen actual */}
+              <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-xl bg-noir-900 border border-gold-500/30 overflow-hidden flex items-center justify-center shrink-0 p-2 shadow-inner">
+                {imageUrl ? (
+                  <img
+                    src={imageUrl}
+                    alt="Vista previa"
+                    className="w-full h-full object-contain"
+                  />
+                ) : (
+                  <ImageIcon className="w-8 h-8 text-sand-600" />
+                )}
+              </div>
+
+              {/* Botón para abrir el explorador de archivos de Windows / Celular */}
+              <div className="flex-1 space-y-2 text-center sm:text-left w-full">
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="px-4 py-2.5 bg-gradient-to-r from-gold-500/20 via-gold-400/25 to-amber-500/20 hover:from-gold-500/35 hover:to-amber-500/35 border border-gold-500/50 rounded-xl text-xs font-bold text-gold-300 flex items-center justify-center sm:justify-start gap-2 transition-all shadow-sm active:scale-95 w-full sm:w-auto"
+                >
+                  <Upload className="w-4 h-4 text-gold-400" />
+                  <span>Subir Imagen desde mi Dispositivo</span>
+                </button>
+                <p className="text-[11px] text-sand-400">
+                  Haga clic para elegir fotos desde su computadora o celular (JPG, PNG, WebP).
+                </p>
+
+                {/* Opción secundaria para pegar URL si se prefiere */}
+                <div className="pt-1">
+                  <input
+                    type="text"
+                    placeholder="O pegue una URL / ruta de imagen..."
+                    value={imageUrl}
+                    onChange={(e) => setImageUrl(e.target.value)}
+                    className="w-full bg-noir-900 border border-white/10 rounded-lg px-3 py-1.5 text-[11px] text-sand-300 focus:outline-none focus:border-gold-500/60"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
 
           <div>

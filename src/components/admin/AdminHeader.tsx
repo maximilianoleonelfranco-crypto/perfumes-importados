@@ -12,10 +12,11 @@ import {
   ExternalLink,
   ShieldCheck,
   Truck,
+  MessageSquare,
 } from "lucide-react";
 import Link from "next/link";
 
-export type AdminTab = "dashboard" | "products" | "categories" | "coupons" | "promotions" | "shipping";
+export type AdminTab = "dashboard" | "products" | "categories" | "coupons" | "promotions" | "shipping" | "reviews";
 
 interface AdminHeaderProps {
   activeTab: AdminTab;
@@ -23,13 +24,14 @@ interface AdminHeaderProps {
 }
 
 export default function AdminHeader({ activeTab, setActiveTab }: AdminHeaderProps) {
-  const { logoutAdmin, products, coupons, categories, shippingConfig } = useStore();
+  const { logoutAdmin, products, coupons, categories, shippingConfig, reviews } = useStore();
 
   const outOfStockCount = products.filter((p) => p.stock === 0).length;
 
   const tabs: { id: AdminTab; label: string; icon: React.ComponentType<{ className?: string }>; badge?: number | string }[] = [
     { id: "dashboard", label: "Estadísticas & Visitas", icon: BarChart3 },
     { id: "products", label: "Productos & Stock", icon: Package, badge: outOfStockCount > 0 ? `${outOfStockCount} Sin Stock` : undefined },
+    { id: "reviews", label: "Reseñas & WhatsApp", icon: MessageSquare, badge: `${reviews.length} Reseñas` },
     { id: "categories", label: "Categorías", icon: FolderTree, badge: categories.length },
     { id: "coupons", label: "Cupones Descuento", icon: Ticket, badge: coupons.filter(c => c.isActive).length },
     { id: "promotions", label: "Ofertas & Promos", icon: Flame },

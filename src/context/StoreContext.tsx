@@ -67,6 +67,19 @@ export interface ShippingConfig {
   neighborhoods: MontevideoNeighborhood[];
 }
 
+export interface Review {
+  id: string;
+  name: string;
+  city: string;
+  rating: number; // 1 a 5
+  comment: string;
+  purchasedItem: string;
+  date: string;
+  avatar?: string;
+  imageUrl?: string; // Captura de pantalla de WhatsApp o foto de cliente
+  isWhatsAppScreenshot?: boolean;
+}
+
 interface StoreContextType {
   // Productos & Stock
   products: Product[];
@@ -77,6 +90,12 @@ interface StoreContextType {
   toggleDecant: (id: string, available?: boolean, decantPrice?: number) => void;
   stockFilter: "all" | "in-stock" | "out-of-stock" | "critical" | "decants";
   setStockFilter: (filter: "all" | "in-stock" | "out-of-stock" | "critical" | "decants") => void;
+
+  // Reseñas & Capturas de WhatsApp
+  reviews: Review[];
+  addReview: (review: Omit<Review, "id">) => void;
+  updateReview: (id: string, updated: Partial<Review>) => void;
+  deleteReview: (id: string) => void;
 
   // Categorías
   categories: Category[];
@@ -197,6 +216,57 @@ const INITIAL_PROMOTIONS: Promotion[] = [
   },
 ];
 
+export const INITIAL_REVIEWS: Review[] = [
+  {
+    id: "rev-1",
+    name: "Valentina R.",
+    city: "Montevideo",
+    rating: 5,
+    comment: "Increíble fijación. Khamrah Qahwa de Lattafa es una obra de arte, dura más de 12 horas en piel. El envío llegó en menos de 24 hs por DAC. 100% recomendados.",
+    purchasedItem: "Khamrah Qahwa • Lattafa",
+    date: "Hace 2 días",
+    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+    imageUrl: "",
+    isWhatsAppScreenshot: false,
+  },
+  {
+    id: "rev-2",
+    name: "Gonzalo M.",
+    city: "Punta del Este",
+    rating: 5,
+    comment: "Buscaba Asad de Lattafa en Uruguay y no lo conseguía en ningún lado. Excelente atención por WhatsApp y me aconsejaron genial sobre las notas de Oud.",
+    purchasedItem: "Asad • Lattafa",
+    date: "Hace 4 días",
+    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+    imageUrl: "",
+    isWhatsAppScreenshot: false,
+  },
+  {
+    id: "rev-3",
+    name: "Camila B.",
+    city: "Canelones",
+    rating: 5,
+    comment: "Probé el formato Decant de 10ml de Amber Oud Gold y me fascinó. Es ideal para probar antes del frasco entero. ¡Atención impecable!",
+    purchasedItem: "Amber Oud Gold (Decant 10ml)",
+    date: "Hace 1 semana",
+    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80",
+    imageUrl: "",
+    isWhatsAppScreenshot: false,
+  },
+  {
+    id: "rev-4",
+    name: "Federico T.",
+    city: "Salto",
+    rating: 5,
+    comment: "Fragancias 100% originales con código de lote verificable en la caja. La facilidad para coordinar el pago por Mercado Pago y el envío fue impecable. Volveré a comprar.",
+    purchasedItem: "9 PM • Afnan",
+    date: "Hace 1 semana",
+    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80",
+    imageUrl: "",
+    isWhatsAppScreenshot: false,
+  },
+];
+
 export const INITIAL_SHIPPING_CONFIG: ShippingConfig = {
   defaultMontevideoCost: 180,
   canelonesMaldonadoCost: 220,
@@ -288,6 +358,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [promotions, setPromotions] = useState<Promotion[]>(INITIAL_PROMOTIONS);
   const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
   const [stockFilter, setStockFilter] = useState<"all" | "in-stock" | "out-of-stock" | "critical" | "decants">("all");
+  const [reviews, setReviews] = useState<Review[]>(INITIAL_REVIEWS);
 
   const [analytics, setAnalytics] = useState<AnalyticsData>({
     totalVisits: 1420,
@@ -333,6 +404,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       const savedPromos = localStorage.getItem("perfumes_importtados_promotions_v3");
       if (savedPromos) setPromotions(JSON.parse(savedPromos));
 
+      const savedReviews = localStorage.getItem("perfumes_importados_reviews_v1");
+      if (savedReviews) setReviews(JSON.parse(savedReviews));
+
       const savedAnalytics = localStorage.getItem("perfumes_importtados_analytics_v3");
       if (savedAnalytics) {
         const parsed = JSON.parse(savedAnalytics);
@@ -358,6 +432,12 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       localStorage.setItem("perfumes_importtados_products_v3", JSON.stringify(products));
     } catch {}
   }, [products]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("perfumes_importados_reviews_v1", JSON.stringify(reviews));
+    } catch {}
+  }, [reviews]);
 
   useEffect(() => {
     try {
@@ -434,6 +514,25 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         return p;
       })
     );
+  };
+
+  // Funciones de Reseñas & WhatsApp
+  const addReview = (review: Omit<Review, "id">) => {
+    const newRev: Review = {
+      ...review,
+      id: "rev-" + Date.now().toString(),
+    };
+    setReviews((prev) => [newRev, ...prev]);
+  };
+
+  const updateReview = (id: string, updated: Partial<Review>) => {
+    setReviews((prev) =>
+      prev.map((r) => (r.id === id ? { ...r, ...updated } : r))
+    );
+  };
+
+  const deleteReview = (id: string) => {
+    setReviews((prev) => prev.filter((r) => r.id !== id));
   };
 
   // Funciones de Categorías
@@ -682,6 +781,11 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         toggleDecant,
         stockFilter,
         setStockFilter,
+
+        reviews,
+        addReview,
+        updateReview,
+        deleteReview,
 
         categories,
         addCategory,
