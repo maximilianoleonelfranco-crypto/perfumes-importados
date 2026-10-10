@@ -71,8 +71,8 @@ export default function AudioPlayer() {
 
   return (
     <>
-      {/* Elemento de audio en segundo plano */}
-      <audio ref={audioRef} src="/audio/luxury-ambient.mp3" preload="metadata" />
+      {/* Elemento de audio en segundo plano - preload='none' para no ralentizar la carga inicial */}
+      <audio ref={audioRef} src="/audio/luxury-ambient.mp3" preload="none" />
 
       {/* Reproductor Flotante de Lujo */}
       <aside aria-label="Música de ambiente" className="fixed bottom-6 left-6 z-40 select-none">

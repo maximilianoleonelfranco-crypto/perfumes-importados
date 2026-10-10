@@ -45,7 +45,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       {/* Insignia / Badges de Stock, Descuento, Decant y Ofertas */}
       <div className="absolute top-3 left-3 z-20 flex flex-col gap-1 pointer-events-none">
         {product.stock === 0 ? (
-          <span className="inline-block px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white bg-red-600/95 backdrop-blur-md rounded-md border border-red-400 shadow-md">
+          <span className="inline-block px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white bg-red-600 rounded-md border border-red-400 shadow-md">
             AGOTADO
           </span>
         ) : product.stock <= 3 ? (
@@ -55,20 +55,20 @@ export default function ProductCard({ product }: ProductCardProps) {
         ) : null}
 
         {product.availableForDecant && product.stock > 0 && (
-          <span className="inline-block px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-cyan-300 bg-noir-950/85 backdrop-blur-md border border-cyan-500/40 rounded-md flex items-center gap-1">
+          <span className="inline-block px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-cyan-300 bg-noir-950/95 border border-cyan-500/40 rounded-md flex items-center gap-1 shadow-sm">
             <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
             Decant 10ml
           </span>
         )}
 
         {product.badge && (
-          <span className="inline-block px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-black bg-gold-400 rounded-md">
+          <span className="inline-block px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-black bg-gold-400 rounded-md shadow-sm">
             {product.badge}
           </span>
         )}
 
         {product.discount && (
-          <span className="inline-block px-2 py-0.5 text-[11px] font-bold text-emerald-400 bg-noir-950/80 backdrop-blur-md border border-emerald-500/30 rounded-md">
+          <span className="inline-block px-2 py-0.5 text-[11px] font-bold text-emerald-400 bg-noir-950/95 border border-emerald-500/40 rounded-md shadow-sm">
             {product.discount}
           </span>
         )}
@@ -86,7 +86,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             alt={product.title}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            className="object-contain object-center transition-transform duration-700 ease-out group-hover:scale-105"
+            className="object-contain object-center transition-transform duration-500 ease-out group-hover:scale-105"
           />
         </div>
 
@@ -94,7 +94,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         <div className="absolute inset-0 bg-gradient-to-t from-noir-900 via-transparent to-transparent opacity-50 pointer-events-none" />
 
         {/* PANEL REVELABLE AL HOVER (Desktop) y accesible en móvil: Notas con Emojis */}
-        <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-noir-950 via-noir-950/95 to-noir-950/70 backdrop-blur-md translate-y-3 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 ease-out z-20 flex flex-col justify-end">
+        <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-noir-950 via-noir-950/95 to-noir-950/90 border-t border-gold-500/20 translate-y-3 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 ease-out z-20 flex flex-col justify-end">
           <div className="text-[10px] uppercase tracking-widest text-gold-400 font-medium mb-1.5 flex items-center justify-between">
             <div className="flex items-center gap-1.5">
               <Sparkles className="w-3 h-3 text-gold-400" />

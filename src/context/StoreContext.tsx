@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from "react";
 import { products as initialProducts, Product as BaseProduct } from "@/data/products";
 
 export interface Product extends BaseProduct {
@@ -638,7 +638,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     }));
   };
 
-  const detectMontevideoNeighborhood = (address: string): MontevideoNeighborhood | null => {
+  const detectMontevideoNeighborhood = useCallback((address: string): MontevideoNeighborhood | null => {
     if (!address || address.trim().length < 3) return null;
     const cleanAddress = address
       .toLowerCase()
@@ -668,7 +668,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       }
     }
     return null;
-  };
+  }, [shippingConfig.neighborhoods]);
+
 
   return (
     <StoreContext.Provider

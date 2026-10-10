@@ -106,6 +106,8 @@ export default function CartDrawer() {
   // Total Final con recargo si aplica
   const grandTotal = Math.max(0, subtotal - discountAmount + mercadoPagoSurcharge + currentShippingCost);
 
+  const checkoutScrollRef = React.useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (isCartOpen) {
       const origOverflow = document.body.style.overflow;
@@ -121,7 +123,6 @@ export default function CartDrawer() {
 
   if (!isCartOpen) return null;
 
-  const checkoutScrollRef = React.useRef<HTMLDivElement>(null);
 
   // Generar mensaje detallado para enviar directamente por WhatsApp al 097837529
   const handleSendToWhatsApp = () => {
